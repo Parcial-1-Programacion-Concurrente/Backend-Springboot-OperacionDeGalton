@@ -52,7 +52,7 @@ public class EstacionTrabajo implements Runnable {
         }
     }
 
-    private Componente producirComponente() {
+    public Componente producirComponente() {
         // Crear un nuevo componente según el tipo de estación de trabajo.
         Componente componente = new Componente();
         componente.setTipo(tipo);
@@ -61,6 +61,30 @@ public class EstacionTrabajo implements Runnable {
 
         System.out.println("Componente de tipo " + tipo + " creado por la estación de trabajo: " + nombre);
         return componente;
+    }
+
+    /**
+     * Producir una cantidad específica de componentes de un tipo dado.
+     * @param tipo Tipo de componente a producir.
+     * @param cantidad Cantidad de componentes a producir.
+     */
+    public void producirComponentes(String tipo, int cantidad) {
+        System.out.println("Producción de " + cantidad + " componentes de tipo " + tipo + " en la estación de trabajo: " + nombre);
+
+        for (int i = 0; i < cantidad; i++) {
+            Componente componente = new Componente();
+            componente.setTipo(tipo);
+            componente.setValorCalculado(0.0); // Valor inicial antes de ser calculado.
+            componente.setEstacionTrabajo(this);
+
+            try {
+                bufferComponentes.put(componente);
+                System.out.println("Componente de tipo " + tipo + " producido y añadido al buffer por la estación: " + nombre);
+            } catch (InterruptedException e) {
+                System.err.println("Error al producir el componente: " + e.getMessage());
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 }
 
