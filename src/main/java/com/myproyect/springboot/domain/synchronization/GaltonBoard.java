@@ -9,7 +9,7 @@ import lombok.Setter;
 @Table(name = "galton_board")
 @Getter
 @Setter
-public class GaltonBoard {
+public class GaltonBoard implements Runnable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,5 +26,16 @@ public class GaltonBoard {
 
     @Column(nullable = false)
     private String estado; // 'EN_SIMULACION', 'FINALIZADA'
+
+    @Override
+    public void run() {
+        // Delegar la simulación de la caída de bolas al servicio.
+        try {
+            // Simular la caida de bolas aquí o llamar a un metodo de servicio para hacerlo
+            System.out.println("Iniciando la simulación de caída de bolas en el GaltonBoard.");
+        } catch (Exception e) {
+            System.err.println("Error durante la simulación de caída de bolas: " + e.getMessage());
+        }
+    }
 }
 

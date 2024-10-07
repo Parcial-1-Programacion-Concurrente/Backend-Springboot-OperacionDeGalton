@@ -17,6 +17,9 @@ public class MaquinaWorker implements Runnable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column
+    private Long maquinaId;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "maquina_id", nullable = false)
     private Maquina maquina;
@@ -29,7 +32,16 @@ public class MaquinaWorker implements Runnable {
 
     @Override
     public void run() {
-        // La lógica de ensamblaje y distribución de la máquina (se delegará al servicio)
+        try {
+            System.out.println("Iniciando el ensamblaje de la máquina de tipo: " + maquina.getTipo());
+            // Logica de ensamblaje y calculo de distribucion
+            for (ComponenteWorker worker : componenteWorkers) {
+                executor.submit(worker);
+            }
+            System.out.println("Todos los ComponenteWorkers han sido lanzados para la máquina de tipo: " + maquina.getTipo());
+        } catch (Exception e) {
+            System.err.println("Error durante el ensamblaje de la máquina: " + e.getMessage());
+        }
     }
 }
 

@@ -6,23 +6,60 @@ import com.myproyect.springboot.domain.concurrency.Componente;
 import com.myproyect.springboot.domain.factory.maquinas.Maquina;
 import com.myproyect.springboot.domain.factory.MaquinaFactory;
 import com.myproyect.springboot.repos.LineaEnsamblajeRepository;
+import com.myproyect.springboot.repos.MaquinaRepository;
 import com.myproyect.springboot.util.NotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 import java.util.stream.Collectors;
 
 @Service
-public class LineaEnsamblajeService implements Runnable {
+public class LineaEnsamblajeService {
 
     private final LineaEnsamblajeRepository lineaEnsamblajeRepository;
+    private final MaquinaRepository maquinaRepository;
+    private final BlockingQueue<Componente> bufferCompartido;
+    private final Semaphore semaforoComponentes;
 
-    public LineaEnsamblajeService(final LineaEnsamblajeRepository lineaEnsamblajeRepository) {
+    @Autowired
+    public LineaEnsamblajeService(final LineaEnsamblajeRepository lineaEnsamblajeRepository,
+                                  final MaquinaRepository maquinaRepository) {
         this.lineaEnsamblajeRepository = lineaEnsamblajeRepository;
+        this.maquinaRepository = maquinaRepository;
+        this.bufferCompartido = new LinkedBlockingQueue<>(10); // Capacidad máxima de 10 componentes.
+        this.semaforoComponentes = new Semaphore(10); // Semáforo para controlar el acceso al buffer.
     }
+
+    // Metodo para inicializar y ejecutar la línea de ensamblaje.
+    public void iniciarEnsamblaje(Long lineaEnsamblajeId) {
+        LineaEnsamblaje lineaEnsamblaje = lineaEnsamblajeRepository.findById(lineaEnsamblajeId)
+                .orElseThrow(() -> new NotFoundException("Línea de ensamblaje no encontrada con ID: " + lineaEnsamblajeId));
+
+        // Configurar el buffer y el semáforo.
+        lineaEnsamblaje.setBufferCompartido(bufferCompartido);
+        lineaEnsamblaje.setSemaforoComponentes(semaforoComponentes);
+
+        // Ejecutar el ensamblaje en un nuevo hilo.
+        new Thread(lineaEnsamblaje).start();
+    }
+
+    // Metodo para detener el ensamblaje de forma controlada
+    public void detenerEnsamblaje(Long lineaEnsamblajeId) {
+        LineaEnsamblaje lineaEnsamblaje = lineaEnsamblajeRepository.findById(lineaEnsamblajeId)
+                .orElseThrow(() -> new NotFoundException("Línea de ensamblaje no encontrada con ID: " + lineaEnsamblajeId));
+
+        // Llamar al metodo de la línea de ensamblaje para marcar la interrupcion
+        lineaEnsamblaje.detenerEnsamblaje();
+
+        System.out.println("Se ha solicitado detener el ensamblaje para la línea de ensamblaje con ID: " + lineaEnsamblajeId);
+    }
+
+
 
     public List<LineaEnsamblajeDTO> findAll() {
         return lineaEnsamblajeRepository.findAll(Sort.by("id")).stream()
@@ -53,37 +90,15 @@ public class LineaEnsamblajeService implements Runnable {
         lineaEnsamblajeRepository.deleteById(id);
     }
 
-    @Override
-    public void run() {
-        try {
-            ensamblarMaquina();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-    }
-
-    public void ensamblarMaquina() throws InterruptedException {
-
-    }
-
-    public Componente consumirComponente(BlockingQueue<Componente> bufferCompartido) throws InterruptedException {
-
-    }
-
-    public void notificarProgreso(Maquina maquina) {
-        // Implementar la lógica para notificar el progreso del ensamblaje de la máquina.
-    }
-
+    // Métodos de mapeo entre la entidad y el DTO.
     private LineaEnsamblajeDTO mapToDTO(final LineaEnsamblaje lineaEnsamblaje, final LineaEnsamblajeDTO lineaEnsamblajeDTO) {
         lineaEnsamblajeDTO.setId(lineaEnsamblaje.getId());
         lineaEnsamblajeDTO.setCapacidadBuffer(lineaEnsamblaje.getCapacidadBuffer());
-        lineaEnsamblajeDTO.setTiempoEnsamblaje(lineaEnsamblaje.getTiempoEnsamblaje());
         return lineaEnsamblajeDTO;
     }
 
     private LineaEnsamblaje mapToEntity(final LineaEnsamblajeDTO lineaEnsamblajeDTO, final LineaEnsamblaje lineaEnsamblaje) {
         lineaEnsamblaje.setCapacidadBuffer(lineaEnsamblajeDTO.getCapacidadBuffer());
-        lineaEnsamblaje.setTiempoEnsamblaje(lineaEnsamblajeDTO.getTiempoEnsamblaje());
         return lineaEnsamblaje;
     }
 }

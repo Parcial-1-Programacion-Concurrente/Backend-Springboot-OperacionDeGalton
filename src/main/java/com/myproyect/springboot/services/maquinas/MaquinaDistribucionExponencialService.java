@@ -1,6 +1,7 @@
 package com.myproyect.springboot.services.maquinas;
 
 import com.myproyect.springboot.domain.factory.maquinas.MaquinaDistribucionExponencial;
+import com.myproyect.springboot.repos.ComponenteRepository;
 import com.myproyect.springboot.repos.MaquinaRepository;
 import com.myproyect.springboot.util.NotFoundException;
 import org.springframework.stereotype.Service;
@@ -11,13 +12,14 @@ import java.util.Map;
 @Service
 public class MaquinaDistribucionExponencialService extends MaquinaService {
 
-    public MaquinaDistribucionExponencialService(final MaquinaRepository maquinaRepository) {
-        super(maquinaRepository);
+    public MaquinaDistribucionExponencialService(final MaquinaRepository maquinaRepository,
+                                                 final ComponenteRepository componenteRepository) {
+        super(maquinaRepository, componenteRepository);
     }
 
     @Override
     public Map<String, Integer> calcularDistribucion(Long id) {
-        MaquinaDistribucionExponencial maquina = (MaquinaDistribucionExponencial) super.maquinaRepository.findById(id)
+        MaquinaDistribucionExponencial maquina = (MaquinaDistribucionExponencial) super.getMaquinaRepository().findById(id)
                 .orElseThrow(NotFoundException::new);
 
         double lambda = maquina.getLambda(); // Tasa de eventos (lambda)

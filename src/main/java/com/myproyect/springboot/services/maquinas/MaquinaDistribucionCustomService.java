@@ -1,6 +1,7 @@
 package com.myproyect.springboot.services.maquinas;
 
 import com.myproyect.springboot.domain.factory.maquinas.MaquinaDistribucionCustom;
+import com.myproyect.springboot.repos.ComponenteRepository;
 import com.myproyect.springboot.repos.MaquinaRepository;
 import com.myproyect.springboot.services.maquinas.MaquinaService;
 import com.myproyect.springboot.util.NotFoundException;
@@ -13,13 +14,14 @@ import java.util.stream.Collectors;
 @Service
 public class MaquinaDistribucionCustomService extends MaquinaService {
 
-    public MaquinaDistribucionCustomService(final MaquinaRepository maquinaRepository) {
-        super(maquinaRepository);
+    public MaquinaDistribucionCustomService(final MaquinaRepository maquinaRepository,
+                                            final ComponenteRepository componenteRepository) {
+        super(maquinaRepository, componenteRepository);
     }
 
     @Override
     public Map<String, Integer> calcularDistribucion(Long id) {
-        MaquinaDistribucionCustom maquina = (MaquinaDistribucionCustom) super.maquinaRepository.findById(id)
+        MaquinaDistribucionCustom maquina = (MaquinaDistribucionCustom) super.getMaquinaRepository().findById(id)
                 .orElseThrow(NotFoundException::new);
 
         // Supongamos que el usuario ha definido una lista de probabilidades personalizadas

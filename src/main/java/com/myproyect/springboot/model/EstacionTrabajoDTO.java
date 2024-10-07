@@ -19,6 +19,9 @@ public class EstacionTrabajoDTO {
     @NotNull
     private Long fabricaGaussId;
 
+    @NotNull
+    private String tipo;
+
     private Integer capacidadBuffer;
 
     private List<ComponenteDTO> bufferComponentes;
