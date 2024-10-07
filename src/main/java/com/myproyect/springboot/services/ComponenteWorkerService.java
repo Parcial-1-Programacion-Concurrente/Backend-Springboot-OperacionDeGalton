@@ -10,16 +10,37 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 @Service
-public class ComponenteWorkerService implements Runnable {
+public class ComponenteWorkerService {
 
     private final ComponenteWorkerRepository componenteWorkerRepository;
 
     public ComponenteWorkerService(final ComponenteWorkerRepository componenteWorkerRepository) {
         this.componenteWorkerRepository = componenteWorkerRepository;
     }
+
+    public void runComponenteWorker(Long componenteWorkerId, GaltonBoard galtonBoard, CountDownLatch latch) {
+        ComponenteWorker componenteWorker = componenteWorkerRepository.findById(componenteWorkerId)
+                .orElseThrow(() -> new NotFoundException("ComponenteWorker no encontrado con id: " + componenteWorkerId));
+
+        // Configurar el GaltonBoard antes de ejecutar el cálculo.
+        componenteWorker.setGaltonBoard(galtonBoard);
+
+        // Ejecutar la lógica del cálculo de valor en un hilo.
+        Thread workerThread = new Thread(() -> {
+            try {
+                componenteWorker.run();
+            } finally {
+                latch.countDown(); // Indicar que este worker ha terminado.
+            }
+        });
+        workerThread.start();
+    }
+
 
     public List<ComponenteWorkerDTO> findAll() {
         return componenteWorkerRepository.findAll(Sort.by("id")).stream()
@@ -48,15 +69,6 @@ public class ComponenteWorkerService implements Runnable {
 
     public void delete(final Long id) {
         componenteWorkerRepository.deleteById(id);
-    }
-
-    @Override
-    public void run() {
-        calcularValor();
-    }
-
-    public void calcularValor() {
-
     }
 
     private ComponenteWorkerDTO mapToDTO(final ComponenteWorker worker, final ComponenteWorkerDTO dto) {

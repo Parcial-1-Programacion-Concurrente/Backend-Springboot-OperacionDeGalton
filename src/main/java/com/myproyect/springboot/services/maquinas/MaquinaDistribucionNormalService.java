@@ -1,6 +1,7 @@
 package com.myproyect.springboot.services.maquinas;
 
 import com.myproyect.springboot.domain.factory.maquinas.MaquinaDistribucionNormal;
+import com.myproyect.springboot.repos.ComponenteRepository;
 import com.myproyect.springboot.repos.MaquinaRepository;
 import com.myproyect.springboot.util.NotFoundException;
 import org.springframework.stereotype.Service;
@@ -11,13 +12,14 @@ import java.util.Map;
 @Service
 public class MaquinaDistribucionNormalService extends MaquinaService {
 
-    public MaquinaDistribucionNormalService(final MaquinaRepository maquinaRepository) {
-        super(maquinaRepository);
+    public MaquinaDistribucionNormalService(final MaquinaRepository maquinaRepository,
+                                            final ComponenteRepository componenteRepository) {
+        super(maquinaRepository, componenteRepository);
     }
 
     @Override
     public Map<String, Integer> calcularDistribucion(Long id) {
-        MaquinaDistribucionNormal maquina = (MaquinaDistribucionNormal) super.maquinaRepository.findById(id)
+        MaquinaDistribucionNormal maquina = (MaquinaDistribucionNormal) super.getMaquinaRepository().findById(id)
                 .orElseThrow(NotFoundException::new);
 
         double media = maquina.getMedia(); // μ (media)

@@ -1,6 +1,6 @@
 package com.myproyect.springboot.rest;
 
-import com.myproyect.springboot.model.MaquinaDTO;
+import com.myproyect.springboot.model.maquinas.MaquinaDTO;
 import com.myproyect.springboot.services.maquinas.MaquinaService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.http.HttpStatus;
