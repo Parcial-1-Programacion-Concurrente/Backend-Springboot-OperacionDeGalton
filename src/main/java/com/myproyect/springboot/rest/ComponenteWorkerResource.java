@@ -1,7 +1,7 @@
 package com.myproyect.springboot.rest;
 
 import com.myproyect.springboot.model.ComponenteWorkerDTO;
-import com.myproyect.springboot.service.ComponenteWorkerService;
+import com.myproyect.springboot.services.ComponenteWorkerService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

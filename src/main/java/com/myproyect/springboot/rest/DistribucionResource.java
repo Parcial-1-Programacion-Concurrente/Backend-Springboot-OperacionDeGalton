@@ -1,7 +1,7 @@
 package com.myproyect.springboot.rest;
 
 import com.myproyect.springboot.model.DistribucionDTO;
-import com.myproyect.springboot.service.DistribucionService;
+import com.myproyect.springboot.services.DistribucionService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

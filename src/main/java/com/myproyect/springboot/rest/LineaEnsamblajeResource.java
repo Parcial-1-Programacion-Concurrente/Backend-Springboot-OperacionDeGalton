@@ -1,7 +1,7 @@
 package com.myproyect.springboot.rest;
 
 import com.myproyect.springboot.model.LineaEnsamblajeDTO;
-import com.myproyect.springboot.service.LineaEnsamblajeService;
+import com.myproyect.springboot.services.LineaEnsamblajeService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
