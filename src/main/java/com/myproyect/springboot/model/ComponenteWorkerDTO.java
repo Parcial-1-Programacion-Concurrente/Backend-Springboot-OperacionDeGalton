@@ -1,6 +1,8 @@
 package com.myproyect.springboot.model;
 
 
+
+
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,11 +11,10 @@ import lombok.Setter;
 @Setter
 public class ComponenteWorkerDTO {
 
-    private Integer id;
+    private Long id;
 
     @NotNull
-    private ComponenteDTO componente;
+    private Long componenteId;
 
-    @NotNull
     private GaltonBoardDTO galtonBoard;
 }

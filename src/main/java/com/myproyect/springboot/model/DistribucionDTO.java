@@ -5,15 +5,19 @@ package com.myproyect.springboot.model;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
-import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
-public class MaquinaDTO {
+public class DistribucionDTO {
 
     private Long id;
 
     @NotNull
-    private List<ComponenteDTO> componentes;
+    private Integer numBolas;
 
+    @NotNull
+    private Integer numContenedores;
+
+    private Map<String, Integer> datos;
 }

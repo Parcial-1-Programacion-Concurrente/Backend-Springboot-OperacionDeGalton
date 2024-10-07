@@ -2,23 +2,25 @@ package com.myproyect.springboot.model;
 
 
 
+
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
-
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Getter
 @Setter
 public class FabricaGaussDTO {
 
-    private Integer id;
+    private Long id;
 
     @NotNull
+    private String nombre;
+
     private List<EstacionTrabajoDTO> estaciones;
 
     private LineaEnsamblajeDTO lineaEnsamblaje;
 
-    @NotNull
-    private Integer numEstaciones;
+    private OffsetDateTime dateCreated;
 }

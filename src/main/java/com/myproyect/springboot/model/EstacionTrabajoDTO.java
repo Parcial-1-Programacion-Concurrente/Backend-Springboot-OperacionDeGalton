@@ -1,24 +1,24 @@
 package com.myproyect.springboot.model;
 
 
+
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-
 import java.util.List;
 
 @Getter
 @Setter
 public class EstacionTrabajoDTO {
 
-    private Integer id;
+    private Long id;
 
     @NotNull
-    @Size(max = 255)
     private String nombre;
 
     @NotNull
+    private Long fabricaGaussId;
+
     private Integer capacidadBuffer;
 
     private List<ComponenteDTO> bufferComponentes;

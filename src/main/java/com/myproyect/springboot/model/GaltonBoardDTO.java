@@ -2,6 +2,7 @@ package com.myproyect.springboot.model;
 
 
 
+
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,7 +11,7 @@ import lombok.Setter;
 @Setter
 public class GaltonBoardDTO {
 
-    private Integer id;
+    private Long id;
 
     @NotNull
     private Integer numBolas;
@@ -18,5 +19,8 @@ public class GaltonBoardDTO {
     @NotNull
     private Integer numContenedores;
 
-    private int[] contenedores; // Arreglo con los resultados de la simulación
+    private DistribucionDTO distribucion;
+
+    @NotNull
+    private String estado; // 'EN_SIMULACION', 'FINALIZADA'
 }
