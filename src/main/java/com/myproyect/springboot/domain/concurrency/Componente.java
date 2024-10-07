@@ -1,6 +1,5 @@
-package com.myproyect.springboot.domain.distribution;
+package com.myproyect.springboot.domain.concurrency;
 
-import com.myproyect.springboot.domain.concurrency.EstacionTrabajo;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

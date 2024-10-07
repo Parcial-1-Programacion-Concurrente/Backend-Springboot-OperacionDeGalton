@@ -1,6 +1,5 @@
 package com.myproyect.springboot.domain.concurrency;
 
-import com.myproyect.springboot.domain.distribution.Componente;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

@@ -1,6 +1,42 @@
 @startuml
 title Operación de Galton en la Fábrica de Campanas de Gauss
 
+abstract class Maquina {
+    - List<Componente> componentes
+    - int id
+    + ensamblar(List<Componente> componentes)
+    + validarComponentes(): boolean
+    + calcularDistribucion(): Map<String, Integer>
+}
+
+class MaquinaDistribucionUniforme {
+    + calcularDistribucion(): Map<String, Integer>
+}
+
+class MaquinaDistribucionNormal {
+    + calcularDistribucion(): Map<String, Integer>
+}
+
+class MaquinaDistribucionExponencial {
+    + calcularDistribucion(): Map<String, Integer>
+}
+
+class MaquinaDistribucionPoisson {
+    + calcularDistribucion(): Map<String, Integer>
+}
+
+class MaquinaDistribucionBinomial {
+    + calcularDistribucion(): Map<String, Integer>
+}
+
+class MaquinaDistribucionGeometrica {
+    + calcularDistribucion(): Map<String, Integer>
+}
+
+class MaquinaDistribucionCustom {
+    + calcularDistribucion(): Map<String, Integer>
+}
+
 class FabricaGauss {
     - List<EstacionTrabajo> estaciones
     - LineaEnsamblaje lineaEnsamblaje
@@ -41,14 +77,6 @@ class Componente {
     + getTipo(): String
     + getValorCalculado(): double
     + setValorCalculado(double valor)
-}
-
-class Maquina {
-    - List<Componente> componentes
-    - int id
-    + ensamblar(List<Componente> componentes)
-    + validarComponentes(): boolean
-    + obtenerDistribucion(): Map<String, Integer>
 }
 
 class MaquinaFactory {
@@ -94,5 +122,14 @@ ComponenteWorker --> Componente : "modifica"
 MaquinaWorker --> Maquina : "gestiona"
 GaltonBoard --> ComponenteWorker : "1..n"
 
+Maquina <|-- MaquinaDistribucionUniforme
+Maquina <|-- MaquinaDistribucionNormal
+Maquina <|-- MaquinaDistribucionExponencial
+Maquina <|-- MaquinaDistribucionPoisson
+Maquina <|-- MaquinaDistribucionBinomial
+Maquina <|-- MaquinaDistribucionGeometrica
+Maquina <|-- MaquinaDistribucionCustom
+
 @enduml
+
 
