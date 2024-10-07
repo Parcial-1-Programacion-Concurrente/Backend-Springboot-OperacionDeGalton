@@ -3,14 +3,13 @@ package com.myproyect.springboot.domain.concurrency;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
+import java.util.concurrent.BlockingQueue;
 
 @Entity
 @Table(name = "estaciones_trabajo")
 @Getter
 @Setter
-public class EstacionTrabajo {
+public class EstacionTrabajo implements Runnable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,13 +22,16 @@ public class EstacionTrabajo {
     @JoinColumn(name = "fabrica_gauss_id", nullable = false)
     private FabricaGauss fabricaGauss;
 
-    @OneToMany(mappedBy = "estacionTrabajo", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Componente> componentes;
+    @Transient
+    private BlockingQueue<Componente> bufferComponentes;
 
     @Column(nullable = false)
-    private int capacidadProduccion;
+    private int capacidadBuffer;
 
-    @Column(nullable = false)
-    private String tipoComponente;
+    @Override
+    public void run() {
+        // La lógica de producción de componentes (se delegará al servicio)
+    }
 }
+
 

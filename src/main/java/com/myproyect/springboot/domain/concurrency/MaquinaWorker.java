@@ -1,15 +1,17 @@
 package com.myproyect.springboot.domain.concurrency;
 
-import com.myproyect.springboot.domain.factory.maquinas.Maquina;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import com.myproyect.springboot.domain.factory.maquinas.Maquina;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 @Entity
 @Table(name = "maquina_workers")
 @Getter
 @Setter
-public class MaquinaWorker {
+public class MaquinaWorker implements Runnable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,6 +21,15 @@ public class MaquinaWorker {
     @JoinColumn(name = "maquina_id", nullable = false)
     private Maquina maquina;
 
-    @Column(nullable = false)
-    private String estado; // 'ACTIVO', 'FINALIZADO'
+    @Transient
+    private List<ComponenteWorker> componenteWorkers;
+
+    @Transient
+    private ExecutorService executor;
+
+    @Override
+    public void run() {
+        // La lógica de ensamblaje y distribución de la máquina (se delegará al servicio)
+    }
 }
+
