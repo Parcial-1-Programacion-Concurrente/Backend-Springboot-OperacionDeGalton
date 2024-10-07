@@ -1,5 +1,6 @@
 package com.myproyect.springboot.domain.factory;
 
+import com.myproyect.springboot.domain.factory.maquinas.Maquina;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

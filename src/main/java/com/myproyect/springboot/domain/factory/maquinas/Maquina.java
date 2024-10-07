@@ -1,17 +1,18 @@
-package com.myproyect.springboot.domain.factory;
+package com.myproyect.springboot.domain.factory.maquinas;
 
-import com.myproyect.springboot.domain.distribution.Componente;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import com.myproyect.springboot.domain.concurrency.Componente;
 
 import java.util.List;
 
 @Entity
+@Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "maquinas")
 @Getter
 @Setter
-public class Maquina {
+public abstract class Maquina {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,7 +22,7 @@ public class Maquina {
     @JoinColumn(name = "maquina_id", nullable = false)
     private List<Componente> componentes;
 
-    @Column(nullable = false)
-    private String estado; // Puede ser 'EN_PRODUCCION', 'ENSAMBLADA', 'EN_ESPERA'
+
 }
+
 
