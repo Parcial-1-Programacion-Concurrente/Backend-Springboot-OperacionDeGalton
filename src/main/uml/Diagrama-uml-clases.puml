@@ -1,0 +1,98 @@
+@startuml
+title Operación de Galton en la Fábrica de Campanas de Gauss
+
+class FabricaGauss {
+    - List<EstacionTrabajo> estaciones
+    - LineaEnsamblaje lineaEnsamblaje
+    - ExecutorService executor
+    - int numEstaciones
+    + iniciarProduccion()
+    + detenerProduccion()
+    + asignarTareas()
+}
+
+class EstacionTrabajo implements Runnable {
+    - String nombre
+    - BlockingQueue<Componente> bufferComponentes
+    - int capacidadBuffer
+    - ExecutorService executor
+    - Lock lock
+    + run()
+    + producirComponente()
+    + getBufferComponentes(): BlockingQueue<Componente>
+}
+
+class LineaEnsamblaje implements Runnable {
+    - BlockingQueue<Componente> bufferCompartido
+    - int capacidadBuffer
+    - Lock lock
+    - Semaphore semaforoComponentes
+    - MaquinaFactory maquinaFactory
+    + run()
+    + ensamblarMaquina()
+    + consumirComponente(): Componente
+    + notificarProgreso()
+}
+
+class Componente {
+    - String tipo
+    - double valorCalculado
+    - int id
+    + getTipo(): String
+    + getValorCalculado(): double
+    + setValorCalculado(double valor)
+}
+
+class Maquina {
+    - List<Componente> componentes
+    - int id
+    + ensamblar(List<Componente> componentes)
+    + validarComponentes(): boolean
+    + obtenerDistribucion(): Map<String, Integer>
+}
+
+class MaquinaFactory {
+    + crearMaquina(List<Componente> componentes): Maquina
+    + validarComponentes(List<Componente> componentes): boolean
+}
+
+class GaltonBoard {
+    - int numBolas
+    - int numContenedores
+    - int[] contenedores
+    + simularCaidaBolas()
+    + mostrarDistribucion()
+}
+
+class MaquinaWorker implements Runnable {
+    - Maquina maquina
+    - List<ComponenteWorker> componenteWorkers
+    - ExecutorService executor
+    + run()
+    + calcularDistribucion()
+    + agregarComponenteWorker(ComponenteWorker worker)
+    + ensamblarMaquina()
+}
+
+class ComponenteWorker implements Runnable {
+    - Componente componente
+    - GaltonBoard galtonBoard
+    + run()
+    + calcularValor()
+}
+
+FabricaGauss --> EstacionTrabajo : "1..n"
+FabricaGauss --> LineaEnsamblaje : "1"
+EstacionTrabajo --> Componente : "produce 1..n"
+LineaEnsamblaje --> Componente : "consume 1..n"
+LineaEnsamblaje --> MaquinaFactory : "usa para ensamblar"
+MaquinaFactory --> Maquina : "crea"
+Maquina --> Componente : "1..n"
+FabricaGauss --> MaquinaWorker : "crea"
+MaquinaWorker --> ComponenteWorker : "1..n"
+ComponenteWorker --> Componente : "modifica"
+MaquinaWorker --> Maquina : "gestiona"
+GaltonBoard --> ComponenteWorker : "1..n"
+
+@enduml
+
