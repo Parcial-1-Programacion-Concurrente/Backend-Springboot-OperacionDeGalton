@@ -1,0 +1,62 @@
+@startuml
+title Diagrama de Casos de Uso - La Operación de Galton en la Fábrica de Campanas de Gauss
+
+actor Usuario as U
+actor Sistema as S
+
+rectangle "Control de Producción" {
+    usecase "Iniciar Producción" as iniciarProduccion
+    usecase "Detener Producción" as detenerProduccion
+    usecase "Asignar Tareas a Estaciones" as asignarTareas
+    usecase "Verificar Estado del Sistema" as verificarEstado
+}
+
+rectangle "Producción de Componentes" {
+    usecase "Producir Componentes" as producirComponentes
+    usecase "Gestionar Estaciones de Trabajo" as gestionarEstaciones
+    usecase "Sincronizar Producción" as sincronizarProduccion
+}
+
+rectangle "Ensamblaje de Máquinas" {
+    usecase "Ensamblar Máquina" as ensamblarMaquina
+    usecase "Gestionar Hilos de Ensamblaje" as gestionarHilos
+    usecase "Calcular Distribución" as calcularDistribucion
+    usecase "Validar Componentes" as validarComponentes
+}
+
+rectangle "Visualización" {
+    usecase "Visualizar Distribución Normal" as visualizarDistribucion
+    usecase "Generar Reporte de Producción" as generarReporte
+}
+
+U --> iniciarProduccion : "Inicia el proceso de producción"
+U --> detenerProduccion : "Detiene el proceso de producción"
+U --> asignarTareas : "Define la carga de trabajo"
+U --> verificarEstado : "Consulta el estado actual"
+
+S --> producirComponentes : "Gestiona la producción de componentes"
+S --> gestionarEstaciones : "Gestiona la ejecución de hilos en estaciones"
+S --> sincronizarProduccion : "Asegura el orden de producción"
+S --> ensamblarMaquina : "Crea la máquina final"
+S --> gestionarHilos : "Gestiona los hilos de ensamblaje"
+S --> calcularDistribucion : "Simula la distribución de componentes"
+S --> validarComponentes : "Verifica los componentes antes del ensamblaje"
+S --> generarReporte : "Genera un reporte de la producción"
+
+visualizarDistribucion <-- U : "Observa la distribución de bolas"
+generarReporte <-- U : "Genera un informe del rendimiento"
+
+iniciarProduccion --> gestionarEstaciones : "Lanza hilos de estaciones"
+gestionarEstaciones --> producirComponentes : "Produce componentes"
+producirComponentes --> sincronizarProduccion : "Coordina el buffer de componentes"
+sincronizarProduccion --> ensamblarMaquina : "Pasa los componentes"
+ensamblarMaquina --> gestionarHilos : "Gestiona hilos para el ensamblaje"
+gestionarHilos --> calcularDistribucion : "Simula la caída de bolas"
+calcularDistribucion --> visualizarDistribucion : "Genera la curva de distribución"
+
+detenerProduccion --> gestionarEstaciones : "Detiene los hilos activos"
+detenerProduccion --> gestionarHilos : "Detiene el ensamblaje"
+validarComponentes --> ensamblarMaquina : "Componentes listos para ensamblaje"
+
+@enduml
+
