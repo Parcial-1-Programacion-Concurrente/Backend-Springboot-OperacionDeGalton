@@ -13,7 +13,7 @@ import java.util.List;
 @Setter
 public class FabricaGaussDTO {
 
-    private Long id;
+    private Integer id;
 
     @NotNull
     private String nombre;

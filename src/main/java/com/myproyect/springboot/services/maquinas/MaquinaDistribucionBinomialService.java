@@ -18,7 +18,7 @@ public class MaquinaDistribucionBinomialService extends MaquinaService {
     }
 
     @Override
-    public Map<String, Integer> calcularDistribucion(Long id) {
+    public Map<String, Integer> calcularDistribucion(Integer id) {
         MaquinaDistribucionBinomial maquina = (MaquinaDistribucionBinomial) super.getMaquinaRepository().findById(id)
                 .orElseThrow(NotFoundException::new);
 

@@ -6,14 +6,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "maquina_distribucion_uniforme")
+@Table(name = "maquina_distribucion_uniformoe")
 @Getter
 @Setter
 public class MaquinaDistribucionUniforme extends Maquina {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     @Column(nullable = false)
     private int numValores;

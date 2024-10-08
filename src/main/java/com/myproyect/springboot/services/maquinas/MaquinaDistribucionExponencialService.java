@@ -18,7 +18,7 @@ public class MaquinaDistribucionExponencialService extends MaquinaService {
     }
 
     @Override
-    public Map<String, Integer> calcularDistribucion(Long id) {
+    public Map<String, Integer> calcularDistribucion(Integer id) {
         MaquinaDistribucionExponencial maquina = (MaquinaDistribucionExponencial) super.getMaquinaRepository().findById(id)
                 .orElseThrow(NotFoundException::new);
 

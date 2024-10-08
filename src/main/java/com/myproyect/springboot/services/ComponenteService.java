@@ -25,26 +25,26 @@ public class ComponenteService {
                 .collect(Collectors.toList());
     }
 
-    public ComponenteDTO get(final Long id) {
+    public ComponenteDTO get(final Integer id) {
         return componenteRepository.findById(id)
                 .map(componente -> mapToDTO(componente, new ComponenteDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
-    public Long create(final ComponenteDTO componenteDTO) {
+    public Integer create(final ComponenteDTO componenteDTO) {
         Componente componente = new Componente();
         mapToEntity(componenteDTO, componente);
         return componenteRepository.save(componente).getId();
     }
 
-    public void update(final Long id, final ComponenteDTO componenteDTO) {
+    public void update(final Integer id, final ComponenteDTO componenteDTO) {
         Componente componente = componenteRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
         mapToEntity(componenteDTO, componente);
         componenteRepository.save(componente);
     }
 
-    public void delete(final Long id) {
+    public void delete(final Integer id) {
         componenteRepository.deleteById(id);
     }
 

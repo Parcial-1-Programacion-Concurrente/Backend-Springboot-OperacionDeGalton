@@ -26,19 +26,19 @@ public class FabricaGaussResource {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<FabricaGaussDTO> getFabricaGauss(@PathVariable final Long id) {
+    public ResponseEntity<FabricaGaussDTO> getFabricaGauss(@PathVariable final Integer id) {
         return ResponseEntity.ok(fabricaGaussService.get(id));
     }
 
     @PostMapping
     @ApiResponse(responseCode = "201", description = "Create a new fabrica gauss")
-    public ResponseEntity<Long> createFabricaGauss(@RequestBody final FabricaGaussDTO fabricaGaussDTO) {
-        final Long createdId = fabricaGaussService.create(fabricaGaussDTO);
+    public ResponseEntity<Integer> createFabricaGauss(@RequestBody final FabricaGaussDTO fabricaGaussDTO) {
+        final Integer createdId = fabricaGaussService.create(fabricaGaussDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateFabricaGauss(@PathVariable final Long id,
+    public ResponseEntity<Void> updateFabricaGauss(@PathVariable final Integer id,
                                                    @RequestBody final FabricaGaussDTO fabricaGaussDTO) {
         fabricaGaussService.update(id, fabricaGaussDTO);
         return ResponseEntity.ok().build();
@@ -46,7 +46,7 @@ public class FabricaGaussResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204", description = "Delete a fabrica gauss")
-    public ResponseEntity<Void> deleteFabricaGauss(@PathVariable final Long id) {
+    public ResponseEntity<Void> deleteFabricaGauss(@PathVariable final Integer id) {
         fabricaGaussService.delete(id);
         return ResponseEntity.noContent().build();
     }

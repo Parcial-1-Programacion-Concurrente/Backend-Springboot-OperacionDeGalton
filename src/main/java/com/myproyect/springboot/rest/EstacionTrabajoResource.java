@@ -26,19 +26,19 @@ public class EstacionTrabajoResource {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EstacionTrabajoDTO> getEstacionTrabajo(@PathVariable final Long id) {
+    public ResponseEntity<EstacionTrabajoDTO> getEstacionTrabajo(@PathVariable final Integer id) {
         return ResponseEntity.ok(estacionTrabajoService.get(id));
     }
 
     @PostMapping
     @ApiResponse(responseCode = "201", description = "Create a new estacion de trabajo")
-    public ResponseEntity<Long> createEstacionTrabajo(@RequestBody final EstacionTrabajoDTO estacionTrabajoDTO) {
-        final Long createdId = estacionTrabajoService.create(estacionTrabajoDTO);
+    public ResponseEntity<Integer> createEstacionTrabajo(@RequestBody final EstacionTrabajoDTO estacionTrabajoDTO) {
+        final Integer createdId = estacionTrabajoService.create(estacionTrabajoDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateEstacionTrabajo(@PathVariable final Long id,
+    public ResponseEntity<Void> updateEstacionTrabajo(@PathVariable final Integer id,
                                                       @RequestBody final EstacionTrabajoDTO estacionTrabajoDTO) {
         estacionTrabajoService.update(id, estacionTrabajoDTO);
         return ResponseEntity.ok().build();
@@ -46,7 +46,7 @@ public class EstacionTrabajoResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204", description = "Delete a estacion de trabajo")
-    public ResponseEntity<Void> deleteEstacionTrabajo(@PathVariable final Long id) {
+    public ResponseEntity<Void> deleteEstacionTrabajo(@PathVariable final Integer id) {
         estacionTrabajoService.delete(id);
         return ResponseEntity.noContent().build();
     }

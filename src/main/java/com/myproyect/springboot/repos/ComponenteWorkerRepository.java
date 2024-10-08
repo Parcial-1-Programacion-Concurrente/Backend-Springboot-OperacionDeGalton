@@ -7,9 +7,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ComponenteWorkerRepository extends JpaRepository<ComponenteWorker, Long> {
+public interface ComponenteWorkerRepository extends JpaRepository<ComponenteWorker, Integer> {
 
-    List<ComponenteWorker> findAllByMaquinaId(Long maquinaId);
+    List<ComponenteWorker> findAllByMaquinaId(Integer maquinaId);
 
 }
 

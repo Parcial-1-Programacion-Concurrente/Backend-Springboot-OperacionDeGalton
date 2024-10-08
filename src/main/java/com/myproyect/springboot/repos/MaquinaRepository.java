@@ -7,8 +7,8 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface MaquinaRepository extends JpaRepository<Maquina, Long> {
-    Optional<Maquina> findById(Long id);
+public interface MaquinaRepository extends JpaRepository<Maquina, Integer> {
+    Optional<Maquina> findById(Integer id);
 }
 
 

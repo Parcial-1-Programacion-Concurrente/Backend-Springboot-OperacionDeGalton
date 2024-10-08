@@ -4,16 +4,18 @@ import com.myproyect.springboot.domain.distribution.Distribucion;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name = "galton_board")
+@Table(name = "galton_boarod")
 @Getter
 @Setter
 public class GaltonBoard implements Runnable {
 
     @Id
+    @Column(nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @Column(nullable = false)
     private int numBolas;

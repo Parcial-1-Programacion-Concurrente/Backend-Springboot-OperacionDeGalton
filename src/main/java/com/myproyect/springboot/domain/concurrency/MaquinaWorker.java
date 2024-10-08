@@ -4,21 +4,22 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import com.myproyect.springboot.domain.factory.maquinas.Maquina;
+import org.hibernate.annotations.GenericGenerator;
+
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 @Entity
-@Table(name = "maquina_workers")
+@Table(name = "maquina_workoers")
 @Getter
 @Setter
 public class MaquinaWorker implements Runnable {
 
     @Id
+    @Column(nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
-    @Column
-    private Long maquinaId;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "maquina_id", nullable = false)

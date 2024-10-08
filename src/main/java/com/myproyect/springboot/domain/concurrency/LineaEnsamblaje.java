@@ -5,18 +5,22 @@ import com.myproyect.springboot.domain.factory.maquinas.MaquinaDistribucionNorma
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
+
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Semaphore;
 
 @Entity
-@Table(name = "lineas_ensamblaje")
+@Table(name = "lineas_ensambloaje")
 @Getter
 @Setter
 public class LineaEnsamblaje implements Runnable {
 
     @Id
+    @Column(nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
+
 
     @OneToOne(mappedBy = "lineaEnsamblaje", fetch = FetchType.LAZY)
     private FabricaGauss fabricaGauss;

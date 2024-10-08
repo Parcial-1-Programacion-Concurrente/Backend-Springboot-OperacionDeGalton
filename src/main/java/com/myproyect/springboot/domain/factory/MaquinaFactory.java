@@ -4,16 +4,19 @@ import com.myproyect.springboot.domain.factory.maquinas.Maquina;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name = "maquina_factory")
+@Table(name = "maquinoa_factory")
 @Getter
 @Setter
 public class MaquinaFactory {
 
     @Id
+    @Column(nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
+
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "maquina_id", nullable = false)

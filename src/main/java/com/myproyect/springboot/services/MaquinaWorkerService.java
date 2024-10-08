@@ -6,6 +6,7 @@ import com.myproyect.springboot.model.MaquinaWorkerDTO;
 import com.myproyect.springboot.domain.concurrency.MaquinaWorker;
 import com.myproyect.springboot.domain.concurrency.Componente;
 import com.myproyect.springboot.repos.ComponenteWorkerRepository;
+import com.myproyect.springboot.repos.MaquinaRepository;
 import com.myproyect.springboot.repos.MaquinaWorkerRepository;
 import com.myproyect.springboot.util.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,10 @@ import java.util.stream.Collectors;
 @Service
 public class MaquinaWorkerService {
 
+    @Autowired
+    private MaquinaRepository maquinaRepository;
+
+
     private final MaquinaWorkerRepository maquinaWorkerRepository;
     private final ComponenteWorkerRepository componenteWorkerRepository;
     private final ExecutorService executorService = Executors.newFixedThreadPool(10);
@@ -34,15 +39,18 @@ public class MaquinaWorkerService {
     }
 
     // Iniciar el ensamblaje de la máquina usando los ComponenteWorkers
-    public void iniciarEnsamblaje(MaquinaWorker maquinaWorker) {
-        System.out.println("Iniciando ensamblaje para la máquina de tipo: " + maquinaWorker.getMaquina().getTipo());
-        maquinaWorker.setExecutor(executorService);
+    public void iniciarTrabajo(Maquina maquina) {
+        MaquinaWorker worker = new MaquinaWorker();
+        worker.setMaquina(maquina);
 
-        // Crear y agregar ComponenteWorkers al MaquinaWorker
-        maquinaWorker.getComponenteWorkers().forEach(this::agregarComponenteWorker);
+        // Crear y asignar ComponenteWorkers según los componentes de la máquina.
+        maquina.getComponentes().forEach(componente -> {
+            ComponenteWorker componenteWorker = new ComponenteWorker();
+            componenteWorker.setComponente(componente);
+            worker.getComponenteWorkers().add(componenteWorker);
+        });
 
-        // Ejecutar el MaquinaWorker en un nuevo hilo
-        executorService.submit(maquinaWorker);
+        new Thread(worker).start();
     }
 
     // Metodo para calcular la distribución de los componentes de la máquina
@@ -95,26 +103,26 @@ public class MaquinaWorkerService {
                 .collect(Collectors.toList());
     }
 
-    public MaquinaWorkerDTO get(final Long id) {
+    public MaquinaWorkerDTO get(final Integer id) {
         return maquinaWorkerRepository.findById(id)
                 .map(worker -> mapToDTO(worker, new MaquinaWorkerDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
-    public Long create(final MaquinaWorkerDTO maquinaWorkerDTO) {
+    public Integer create(final MaquinaWorkerDTO maquinaWorkerDTO) {
         MaquinaWorker maquinaWorker = new MaquinaWorker();
         mapToEntity(maquinaWorkerDTO, maquinaWorker);
         return maquinaWorkerRepository.save(maquinaWorker).getId();
     }
 
-    public void update(final Long id, final MaquinaWorkerDTO maquinaWorkerDTO) {
+    public void update(final Integer id, final MaquinaWorkerDTO maquinaWorkerDTO) {
         MaquinaWorker maquinaWorker = maquinaWorkerRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
         mapToEntity(maquinaWorkerDTO, maquinaWorker);
         maquinaWorkerRepository.save(maquinaWorker);
     }
 
-    public void delete(final Long id) {
+    public void delete(final Integer id) {
         maquinaWorkerRepository.deleteById(id);
     }
 
@@ -125,7 +133,13 @@ public class MaquinaWorkerService {
     }
 
     private MaquinaWorker mapToEntity(final MaquinaWorkerDTO dto, final MaquinaWorker worker) {
-        worker.setMaquinaId(dto.getMaquinaId());
+        if (dto.getMaquinaId() != null) {
+            // Aquí debes buscar la instancia de Maquina en el repositorio y asociarla con el worker.
+            Maquina maquina = maquinaRepository.findById(dto.getMaquinaId())
+                    .orElseThrow(() -> new NotFoundException("Maquina no encontrada con ID: " + dto.getMaquinaId()));
+            worker.setMaquina(maquina);
+        }
         return worker;
     }
+
 }

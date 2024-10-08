@@ -19,7 +19,7 @@ public class MaquinaDistribucionUniformeService extends MaquinaService {
     }
 
     @Override
-    public Map<String, Integer> calcularDistribucion(Long id) {
+    public Map<String, Integer> calcularDistribucion(Integer id) {
         MaquinaDistribucionUniforme maquina = (MaquinaDistribucionUniforme) super.getMaquinaRepository().findById(id)
                 .orElseThrow(NotFoundException::new);
 

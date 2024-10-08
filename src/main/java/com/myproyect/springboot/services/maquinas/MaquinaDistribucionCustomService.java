@@ -20,7 +20,7 @@ public class MaquinaDistribucionCustomService extends MaquinaService {
     }
 
     @Override
-    public Map<String, Integer> calcularDistribucion(Long id) {
+    public Map<String, Integer> calcularDistribucion(Integer id) {
         MaquinaDistribucionCustom maquina = (MaquinaDistribucionCustom) super.getMaquinaRepository().findById(id)
                 .orElseThrow(NotFoundException::new);
 

@@ -18,7 +18,7 @@ public class MaquinaDistribucionGeometricaService extends MaquinaService {
     }
 
     @Override
-    public Map<String, Integer> calcularDistribucion(Long id) {
+    public Map<String, Integer> calcularDistribucion(Integer id) {
         MaquinaDistribucionGeometrica maquina = (MaquinaDistribucionGeometrica) super.getMaquinaRepository().findById(id)
                 .orElseThrow(NotFoundException::new);
 

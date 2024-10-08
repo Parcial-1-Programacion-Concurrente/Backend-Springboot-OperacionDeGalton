@@ -6,20 +6,23 @@ import lombok.Getter;
 import lombok.Setter;
 import com.myproyect.springboot.domain.concurrency.Componente;
 import com.myproyect.springboot.domain.synchronization.GaltonBoard;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.util.Map;
 import java.util.Random;
 import java.util.logging.Logger;
 
 @Entity
-@Table(name = "componente_workers")
+@Table(name = "componentoe_workers")
 @Getter
 @Setter
 public class ComponenteWorker implements Runnable {
 
     @Id
+    @Column(nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
+
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "componente_id", nullable = false)

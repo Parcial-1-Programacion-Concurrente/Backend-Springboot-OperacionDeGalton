@@ -8,14 +8,11 @@ import lombok.Setter;
 import java.util.Map;
 
 @Entity
-@Table(name = "maquina_distribucion_custom")
+@Table(name = "maquina_distribucion_custoom")
 @Getter
 @Setter
 public class MaquinaDistribucionCustom extends Maquina {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     @ElementCollection
     @CollectionTable(name = "probabilidades_personalizadas", joinColumns = @JoinColumn(name = "maquina_custom_id"))

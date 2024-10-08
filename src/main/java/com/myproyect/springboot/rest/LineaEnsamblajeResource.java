@@ -27,20 +27,20 @@ public class LineaEnsamblajeResource {
 
     @GetMapping("/{id}")
     @ApiResponse(responseCode = "200", description = "Get a linea de ensamblaje by ID")
-    public ResponseEntity<LineaEnsamblajeDTO> getLineaEnsamblaje(@PathVariable final Long id) {
+    public ResponseEntity<LineaEnsamblajeDTO> getLineaEnsamblaje(@PathVariable final Integer id) {
         return ResponseEntity.ok(lineaEnsamblajeService.get(id));
     }
 
     @PostMapping
     @ApiResponse(responseCode = "201", description = "Create a new linea de ensamblaje")
-    public ResponseEntity<Long> createLineaEnsamblaje(@RequestBody final LineaEnsamblajeDTO lineaEnsamblajeDTO) {
-        final Long createdId = lineaEnsamblajeService.create(lineaEnsamblajeDTO);
+    public ResponseEntity<Integer> createLineaEnsamblaje(@RequestBody final LineaEnsamblajeDTO lineaEnsamblajeDTO) {
+        final Integer createdId = lineaEnsamblajeService.create(lineaEnsamblajeDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     @ApiResponse(responseCode = "200", description = "Update an existing linea de ensamblaje")
-    public ResponseEntity<Void> updateLineaEnsamblaje(@PathVariable final Long id,
+    public ResponseEntity<Void> updateLineaEnsamblaje(@PathVariable final Integer id,
                                                       @RequestBody final LineaEnsamblajeDTO lineaEnsamblajeDTO) {
         lineaEnsamblajeService.update(id, lineaEnsamblajeDTO);
         return ResponseEntity.ok().build();
@@ -48,7 +48,7 @@ public class LineaEnsamblajeResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204", description = "Delete a linea de ensamblaje")
-    public ResponseEntity<Void> deleteLineaEnsamblaje(@PathVariable final Long id) {
+    public ResponseEntity<Void> deleteLineaEnsamblaje(@PathVariable final Integer id) {
         lineaEnsamblajeService.delete(id);
         return ResponseEntity.noContent().build();
     }

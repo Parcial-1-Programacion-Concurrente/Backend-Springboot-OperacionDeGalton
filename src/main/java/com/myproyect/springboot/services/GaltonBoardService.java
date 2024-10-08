@@ -26,7 +26,7 @@ public class GaltonBoardService {
     }
 
     // Metodo para iniciar la simulacion de la caida de bolas
-    public void simularCaidaDeBolas(Long galtonBoardId) {
+    public void simularCaidaDeBolas(Integer galtonBoardId) {
         GaltonBoard galtonBoard = galtonBoardRepository.findById(galtonBoardId)
                 .orElseThrow(() -> new NotFoundException("GaltonBoard no encontrado con ID: " + galtonBoardId));
 
@@ -69,7 +69,7 @@ public class GaltonBoardService {
     }
 
     // Metodo para mostrar la distribución de acuerdo al tipo
-    public void mostrarDistribucion(Long galtonBoardId) {
+    public void mostrarDistribucion(Integer galtonBoardId) {
         GaltonBoard galtonBoard = galtonBoardRepository.findById(galtonBoardId)
                 .orElseThrow(() -> new NotFoundException("GaltonBoard no encontrado con ID: " + galtonBoardId));
 
@@ -92,30 +92,30 @@ public class GaltonBoardService {
                 .collect(Collectors.toList());
     }
 
-    public GaltonBoardDTO get(final Long id) {
+    public GaltonBoardDTO get(final Integer id) {
         return galtonBoardRepository.findById(id)
                 .map(board -> mapToDTO(board, new GaltonBoardDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
-    public Long create(final GaltonBoardDTO galtonBoardDTO) {
+    public Integer create(final GaltonBoardDTO galtonBoardDTO) {
         GaltonBoard galtonBoard = new GaltonBoard();
         mapToEntity(galtonBoardDTO, galtonBoard);
         return galtonBoardRepository.save(galtonBoard).getId();
     }
 
-    public void update(final Long id, final GaltonBoardDTO galtonBoardDTO) {
+    public void update(final Integer id, final GaltonBoardDTO galtonBoardDTO) {
         GaltonBoard galtonBoard = galtonBoardRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
         mapToEntity(galtonBoardDTO, galtonBoard);
         galtonBoardRepository.save(galtonBoard);
     }
 
-    public void delete(final Long id) {
+    public void delete(final Integer id) {
         galtonBoardRepository.deleteById(id);
     }
 
-    private GaltonBoardDTO mapToDTO(final GaltonBoard galtonBoard, final GaltonBoardDTO dto) {
+    public GaltonBoardDTO mapToDTO(final GaltonBoard galtonBoard, final GaltonBoardDTO dto) {
         dto.setId(galtonBoard.getId());
         dto.setNumBolas(galtonBoard.getNumBolas());
         dto.setNumContenedores(galtonBoard.getNumContenedores());
@@ -123,7 +123,7 @@ public class GaltonBoardService {
         return dto;
     }
 
-    private GaltonBoard mapToEntity(final GaltonBoardDTO dto, final GaltonBoard galtonBoard) {
+    public GaltonBoard mapToEntity(final GaltonBoardDTO dto, final GaltonBoard galtonBoard) {
         galtonBoard.setNumBolas(dto.getNumBolas());
         galtonBoard.setNumContenedores(dto.getNumContenedores());
         galtonBoard.setEstado(dto.getEstado());

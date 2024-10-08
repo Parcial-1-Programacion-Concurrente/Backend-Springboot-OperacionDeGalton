@@ -13,10 +13,10 @@ import java.util.List;
 @Setter
 public class LineaEnsamblajeDTO {
 
-    private Long id;
+    private Integer id;
 
     @NotNull
-    private Long fabricaGaussId;
+    private Integer fabricaGaussId;
 
     private Integer capacidadBuffer;
 

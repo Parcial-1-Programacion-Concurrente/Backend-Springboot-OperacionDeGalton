@@ -36,20 +36,28 @@ public class LineaEnsamblajeService {
     }
 
     // Metodo para inicializar y ejecutar la línea de ensamblaje.
-    public void iniciarEnsamblaje(Long lineaEnsamblajeId) {
+    public void iniciarEnsamblaje(Integer lineaEnsamblajeId, Maquina maquina) {
         LineaEnsamblaje lineaEnsamblaje = lineaEnsamblajeRepository.findById(lineaEnsamblajeId)
                 .orElseThrow(() -> new NotFoundException("Línea de ensamblaje no encontrada con ID: " + lineaEnsamblajeId));
 
         // Configurar el buffer y el semáforo.
-        lineaEnsamblaje.setBufferCompartido(bufferCompartido);
-        lineaEnsamblaje.setSemaforoComponentes(semaforoComponentes);
+        lineaEnsamblaje.setBufferCompartido(new LinkedBlockingQueue<>(lineaEnsamblaje.getCapacidadBuffer()));
+        lineaEnsamblaje.setSemaforoComponentes(new Semaphore(lineaEnsamblaje.getCapacidadBuffer()));
 
-        // Ejecutar el ensamblaje en un nuevo hilo.
-        new Thread(lineaEnsamblaje).start();
+        // Ejecutar el ensamblaje en un nuevo hilo, pasando la máquina como parámetro.
+        new Thread(() -> {
+            try {
+                lineaEnsamblaje.ensamblarMaquina(maquina);
+            } catch (InterruptedException e) {
+                System.err.println("El ensamblaje fue interrumpido: " + e.getMessage());
+                Thread.currentThread().interrupt();
+            }
+        }).start();
     }
 
+
     // Metodo para detener el ensamblaje de forma controlada
-    public void detenerEnsamblaje(Long lineaEnsamblajeId) {
+    public void detenerEnsamblaje(Integer lineaEnsamblajeId) {
         LineaEnsamblaje lineaEnsamblaje = lineaEnsamblajeRepository.findById(lineaEnsamblajeId)
                 .orElseThrow(() -> new NotFoundException("Línea de ensamblaje no encontrada con ID: " + lineaEnsamblajeId));
 
@@ -67,26 +75,26 @@ public class LineaEnsamblajeService {
                 .collect(Collectors.toList());
     }
 
-    public LineaEnsamblajeDTO get(final Long id) {
+    public LineaEnsamblajeDTO get(final Integer id) {
         return lineaEnsamblajeRepository.findById(id)
                 .map(linea -> mapToDTO(linea, new LineaEnsamblajeDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
-    public Long create(final LineaEnsamblajeDTO lineaEnsamblajeDTO) {
+    public Integer create(final LineaEnsamblajeDTO lineaEnsamblajeDTO) {
         LineaEnsamblaje lineaEnsamblaje = new LineaEnsamblaje();
         mapToEntity(lineaEnsamblajeDTO, lineaEnsamblaje);
         return lineaEnsamblajeRepository.save(lineaEnsamblaje).getId();
     }
 
-    public void update(final Long id, final LineaEnsamblajeDTO lineaEnsamblajeDTO) {
+    public void update(final Integer id, final LineaEnsamblajeDTO lineaEnsamblajeDTO) {
         LineaEnsamblaje lineaEnsamblaje = lineaEnsamblajeRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
         mapToEntity(lineaEnsamblajeDTO, lineaEnsamblaje);
         lineaEnsamblajeRepository.save(lineaEnsamblaje);
     }
 
-    public void delete(final Long id) {
+    public void delete(final Integer id) {
         lineaEnsamblajeRepository.deleteById(id);
     }
 

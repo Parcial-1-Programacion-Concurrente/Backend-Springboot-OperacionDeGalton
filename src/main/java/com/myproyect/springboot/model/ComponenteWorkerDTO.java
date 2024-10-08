@@ -11,10 +11,10 @@ import lombok.Setter;
 @Setter
 public class ComponenteWorkerDTO {
 
-    private Long id;
+    private Integer id;
 
     @NotNull
-    private Long componenteId;
+    private Integer componenteId;
 
     private GaltonBoardDTO galtonBoard;
 }

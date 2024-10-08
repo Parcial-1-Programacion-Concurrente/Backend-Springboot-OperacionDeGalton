@@ -34,7 +34,7 @@ public class FabricaGaussService {
     }
 
     // Metodo para iniciar la producción y ensamblaje de diferentes máquinas.
-    public void iniciarProduccion(Long fabricaId) {
+    public void iniciarProduccion(Integer fabricaId) {
         FabricaGauss fabrica = fabricaGaussRepository.findById(fabricaId)
                 .orElseThrow(() -> new NotFoundException("Fábrica no encontrada con ID: " + fabricaId));
 
@@ -70,7 +70,7 @@ public class FabricaGaussService {
     }
 
     // Metodo para asignar tareas a las estaciones de trabajo.
-    public void asignarTareas(Long fabricaId) {
+    public void asignarTareas(Integer fabricaId) {
         // Obtener la fábrica por su ID.
         FabricaGauss fabrica = fabricaGaussRepository.findById(fabricaId)
                 .orElseThrow(() -> new NotFoundException("Fábrica no encontrada con ID: " + fabricaId));
@@ -182,38 +182,38 @@ public class FabricaGaussService {
                 .collect(Collectors.toList());
     }
 
-    public FabricaGaussDTO get(final Long id) {
+    public FabricaGaussDTO get(final Integer id) {
         return fabricaGaussRepository.findById(id)
                 .map(fabrica -> mapToDTO(fabrica, new FabricaGaussDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
-    public Long create(final FabricaGaussDTO fabricaGaussDTO) {
+    public Integer create(final FabricaGaussDTO fabricaGaussDTO) {
         FabricaGauss fabricaGauss = new FabricaGauss();
         mapToEntity(fabricaGaussDTO, fabricaGauss);
         return fabricaGaussRepository.save(fabricaGauss).getId();
     }
 
-    public void update(final Long id, final FabricaGaussDTO fabricaGaussDTO) {
+    public void update(final Integer id, final FabricaGaussDTO fabricaGaussDTO) {
         FabricaGauss fabricaGauss = fabricaGaussRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
         mapToEntity(fabricaGaussDTO, fabricaGauss);
         fabricaGaussRepository.save(fabricaGauss);
     }
 
-    public void delete(final Long id) {
+    public void delete(final Integer id) {
         fabricaGaussRepository.deleteById(id);
     }
 
     // Métodos de mapeo entre la entidad y el DTO.
-    private FabricaGaussDTO mapToDTO(final FabricaGauss fabricaGauss, final FabricaGaussDTO fabricaGaussDTO) {
+    public FabricaGaussDTO mapToDTO(final FabricaGauss fabricaGauss, final FabricaGaussDTO fabricaGaussDTO) {
         fabricaGaussDTO.setId(fabricaGauss.getId());
         fabricaGaussDTO.setNombre(fabricaGauss.getNombre());
         fabricaGaussDTO.setDateCreated(fabricaGauss.getDateCreated());
         return fabricaGaussDTO;
     }
 
-    private FabricaGauss mapToEntity(final FabricaGaussDTO fabricaGaussDTO, final FabricaGauss fabricaGauss) {
+    public FabricaGauss mapToEntity(final FabricaGaussDTO fabricaGaussDTO, final FabricaGauss fabricaGauss) {
         fabricaGauss.setNombre(fabricaGaussDTO.getNombre());
         return fabricaGauss;
     }

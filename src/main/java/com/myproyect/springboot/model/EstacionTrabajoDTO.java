@@ -11,13 +11,13 @@ import java.util.List;
 @Setter
 public class EstacionTrabajoDTO {
 
-    private Long id;
+    private Integer id;
 
     @NotNull
     private String nombre;
 
     @NotNull
-    private Long fabricaGaussId;
+    private Integer fabricaGaussId;
 
     @NotNull
     private String tipo;

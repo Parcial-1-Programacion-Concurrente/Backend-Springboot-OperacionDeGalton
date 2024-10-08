@@ -34,20 +34,20 @@ public abstract class MaquinaService {
                 .collect(Collectors.toList());
     }
 
-    public MaquinaDTO get(final Long id) {
+    public MaquinaDTO get(final Integer id) {
         return maquinaRepository.findById(id)
                 .map(this::mapMaquinaToSpecificDTO)
                 .orElseThrow(NotFoundException::new);
     }
 
-    public MaquinaDTO findById(final Long id) {
+    public MaquinaDTO findById(final Integer id) {
         Maquina maquina = maquinaRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Maquina no encontrada con id: " + id));
 
         return mapMaquinaToSpecificDTO(maquina);
     }
 
-    public Long create(final MaquinaDTO maquinaDTO) {
+    public Integer create(final MaquinaDTO maquinaDTO) {
         Maquina maquina;
 
         // Determinar la subclase a instanciar según el tipo especificado en el DTO
@@ -169,14 +169,14 @@ public abstract class MaquinaService {
         }
     }
 
-    public void update(final Long id, final MaquinaDTO maquinaDTO) {
+    public void update(final Integer id, final MaquinaDTO maquinaDTO) {
         Maquina maquina = maquinaRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
         mapToEntity(maquinaDTO, maquina);
         maquinaRepository.save(maquina);
     }
 
-    public void delete(final Long id) {
+    public void delete(final Integer id) {
         maquinaRepository.deleteById(id);
     }
 
@@ -221,7 +221,7 @@ public abstract class MaquinaService {
     }
 
     // Metodo para ensamblar una máquina con una lista de componentes
-    public boolean ensamblar(Long maquinaId, List<ComponenteDTO> componentesDTO) {
+    public boolean ensamblar(Integer maquinaId, List<ComponenteDTO> componentesDTO) {
         // Recuperar la máquina por su ID
         Maquina maquina = maquinaRepository.findById(maquinaId)
                 .orElseThrow(() -> new NotFoundException("Maquina no encontrada con id: " + maquinaId));
@@ -371,6 +371,6 @@ public abstract class MaquinaService {
     }
 
 
-    public abstract Map<String, Integer> calcularDistribucion(Long id);
+    public abstract Map<String, Integer> calcularDistribucion(Integer id);
 }
 

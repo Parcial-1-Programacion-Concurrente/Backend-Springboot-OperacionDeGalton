@@ -26,7 +26,7 @@ public class EstacionTrabajoService {
     }
 
     // Iniciar la producción de componentes en una estación de trabajo.
-    public void iniciarProduccion(Long estacionId) {
+    public void iniciarProduccion(Integer estacionId) {
         EstacionTrabajo estacion = estacionTrabajoRepository.findById(estacionId)
                 .orElseThrow(() -> new NotFoundException("Estación de trabajo no encontrada con ID: " + estacionId));
 
@@ -39,7 +39,7 @@ public class EstacionTrabajoService {
     }
 
     // Detener la producción de la estación de trabajo.
-    public void detenerProduccion(Long estacionId) {
+    public void detenerProduccion(Integer estacionId) {
         System.out.println("La producción ha sido detenida para la estación de trabajo con ID: " + estacionId);
         // En este metodo se podria implementar una forma de notificar al hilo de la estación para que se detenga.
     }
@@ -51,26 +51,26 @@ public class EstacionTrabajoService {
                 .collect(Collectors.toList());
     }
 
-    public EstacionTrabajoDTO get(final Long id) {
+    public EstacionTrabajoDTO get(final Integer id) {
         return estacionTrabajoRepository.findById(id)
                 .map(estacion -> mapToDTO(estacion, new EstacionTrabajoDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
-    public Long create(final EstacionTrabajoDTO estacionTrabajoDTO) {
+    public Integer create(final EstacionTrabajoDTO estacionTrabajoDTO) {
         EstacionTrabajo estacionTrabajo = new EstacionTrabajo();
         mapToEntity(estacionTrabajoDTO, estacionTrabajo);
         return estacionTrabajoRepository.save(estacionTrabajo).getId();
     }
 
-    public void update(final Long id, final EstacionTrabajoDTO estacionTrabajoDTO) {
+    public void update(final Integer id, final EstacionTrabajoDTO estacionTrabajoDTO) {
         EstacionTrabajo estacionTrabajo = estacionTrabajoRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
         mapToEntity(estacionTrabajoDTO, estacionTrabajo);
         estacionTrabajoRepository.save(estacionTrabajo);
     }
 
-    public void delete(final Long id) {
+    public void delete(final Integer id) {
         estacionTrabajoRepository.deleteById(id);
     }
 

@@ -15,7 +15,7 @@ public abstract class MaquinaDTO {
 
     @NotNull
     @NotEmpty
-    private Long id;
+    private Integer id;
 
     @NotNull
     private int numeroComponentesRequeridos;

@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface FabricaGaussRepository extends JpaRepository<FabricaGauss, Long> {
+public interface FabricaGaussRepository extends JpaRepository<FabricaGauss, Integer> {
 }
 
