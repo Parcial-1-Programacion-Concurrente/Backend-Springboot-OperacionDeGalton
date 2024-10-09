@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Entity
@@ -19,11 +20,7 @@ public class Distribucion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-
     @ElementCollection
-    @CollectionTable(name = "distribucion_datos", joinColumns = @JoinColumn(name = "distribucion_id"))
-    @MapKeyColumn(name = "tipo_componente")
-    @Column(name = "cantidad")
     private Map<String, Integer> datos;
 
     @Column(nullable = false)
@@ -32,7 +29,7 @@ public class Distribucion {
     @Column(nullable = false)
     private int numContenedores;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "galton_board_id", nullable = false)
     private GaltonBoard galtonBoard;
 }

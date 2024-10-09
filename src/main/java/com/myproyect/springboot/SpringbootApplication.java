@@ -1,21 +1,23 @@
 package com.myproyect.springboot;
 
-import com.myproyect.springboot.domain.concurrency.FabricaGauss;
-import com.myproyect.springboot.domain.synchronization.GaltonBoard;
-import com.myproyect.springboot.domain.concurrency.LineaEnsamblaje;
-import com.myproyect.springboot.domain.factory.maquinas.MaquinaDistribucionNormal;
-import com.myproyect.springboot.services.FabricaGaussService;
-import com.myproyect.springboot.services.GaltonBoardService;
-import com.myproyect.springboot.services.LineaEnsamblajeService;
-import com.myproyect.springboot.services.MaquinaWorkerService;
+import com.myproyect.springboot.domain.concurrency.MaquinaWorker;
+import com.myproyect.springboot.domain.factory.maquinas.FabricaGauss;
 import com.myproyect.springboot.model.FabricaGaussDTO;
-import com.myproyect.springboot.model.GaltonBoardDTO;
+import com.myproyect.springboot.services.FabricaGaussService;
+import jakarta.annotation.PostConstruct;
+
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.sql.*;
+import java.util.Scanner;
 
 @SpringBootApplication
 public class SpringbootApplication implements CommandLineRunner {
@@ -24,13 +26,7 @@ public class SpringbootApplication implements CommandLineRunner {
     private FabricaGaussService fabricaGaussService;
 
     @Autowired
-    private LineaEnsamblajeService lineaEnsamblajeService;
-
-    @Autowired
-    private GaltonBoardService galtonBoardService;
-
-    @Autowired
-    private MaquinaWorkerService maquinaWorkerService;
+    private DataSource dataSource;
 
     public static void main(String[] args) {
         SpringApplication.run(SpringbootApplication.class, args);
@@ -38,41 +34,37 @@ public class SpringbootApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        System.out.println("Iniciando simulación de la fábrica de Gauss...");
+        try (Scanner scanner = new Scanner(System.in)) {
+            System.out.println("Iniciando simulación de la fábrica de Gauss...");
 
-        // Crear una fábrica y asignar estaciones de trabajo y línea de ensamblaje.
-        FabricaGauss fabrica = new FabricaGauss();
-        fabrica.setNombre("Fábrica de Campanas de Gauss");
-        Integer fabricaId = fabricaGaussService.create(fabricaGaussService.mapToDTO(fabrica, new FabricaGaussDTO()));
+            // Paso 1: Crear la fábrica de Gauss
+            FabricaGaussDTO fabricaGaussDTO = new FabricaGaussDTO();
+            fabricaGaussDTO.setNombre("Fábrica de Campanas de Gauss");
+            Integer fabricaId = fabricaGaussService.create(fabricaGaussDTO);
+            System.out.println("Fábrica creada con ID: " + fabricaId);
 
-        // Configurar la línea de ensamblaje.
-        LineaEnsamblaje lineaEnsamblaje = new LineaEnsamblaje();
-        lineaEnsamblaje.setCapacidadBuffer(10);
-        fabrica.setLineaEnsamblaje(lineaEnsamblaje);
+            // Paso 2: Iniciar la producción de máquinas y distribuciones
+            System.out.println("Iniciando la producción de máquinas...");
+            new Thread(fabricaGaussService::iniciarProduccion).start();
 
-        // Crear y simular un GaltonBoard.
-        GaltonBoard galtonBoard = new GaltonBoard();
-        galtonBoard.setNumBolas(1000);
-        galtonBoard.setNumContenedores(10);
-        galtonBoard.setEstado("EN_SIMULACION");
-        Integer galtonBoardId = galtonBoardService.create(galtonBoardService.mapToDTO(galtonBoard, new GaltonBoardDTO()));
-        galtonBoardService.simularCaidaDeBolas(galtonBoardId);
+            // Paso 3: Monitorear para detener la simulación
+            System.out.println("Escribe 'detener' y presiona Enter para detener la simulación:");
+            while (true) {
+                String input = scanner.nextLine();
+                if ("detener".equalsIgnoreCase(input.trim())) {
+                    fabricaGaussService.detenerSimulacion();
+                    System.out.println("La detención de la simulación ha sido solicitada.");
+                    break;
+                }
+            }
 
-        // Asignar tareas a las estaciones de trabajo y producir componentes.
-        fabricaGaussService.asignarTareas(fabricaId);
+            // Esperar un poco para que los hilos puedan terminar sus tareas actuales
+            Thread.sleep(2000);
 
-        // Iniciar el ensamblaje de la máquina con la línea de ensamblaje.
-        MaquinaDistribucionNormal maquina = new MaquinaDistribucionNormal();
-        lineaEnsamblajeService.iniciarEnsamblaje(lineaEnsamblaje.getId(), maquina);
-
-        // Iniciar el trabajo de la máquina y calcular la distribución.
-        maquinaWorkerService.iniciarTrabajo(maquina);
-
-        // Mostrar la distribución final.
-        galtonBoardService.mostrarDistribucion(galtonBoardId);
-
-        System.out.println("Simulación de la fábrica de Gauss finalizada.");
+            System.out.println("Simulación completa.");
+        } catch (Exception e) {
+            System.err.println("Ocurrió un error durante la simulación: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }
-
-

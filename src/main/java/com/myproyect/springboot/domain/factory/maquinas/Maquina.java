@@ -6,6 +6,7 @@ import lombok.Setter;
 import com.myproyect.springboot.domain.concurrency.Componente;
 import org.hibernate.annotations.GenericGenerator;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -21,21 +22,20 @@ public abstract class Maquina {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-
     @Column
     private String tipo;
 
     @Column(nullable = false)
     private int numeroComponentesRequeridos;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "maquina_id", nullable = false)
+    @OneToMany(mappedBy = "maquina", cascade = CascadeType.ALL)
     private List<Componente> componentes;
 
     @Transient
-    private Map<String, Integer> distribucion; // Mapa para almacenar la distribución de componentes
+    private Map<String, Integer> distribucion;
 
-
+    @Column(nullable = false)
+    private String estado = "APAGADO"; // 'INICIALIZADO', 'EN_SIMULACION', 'FINALIZADA'
 
 }
 

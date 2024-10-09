@@ -18,9 +18,5 @@ public class FabricaGaussDTO {
     @NotNull
     private String nombre;
 
-    private List<EstacionTrabajoDTO> estaciones;
-
-    private LineaEnsamblajeDTO lineaEnsamblaje;
-
     private OffsetDateTime dateCreated;
 }

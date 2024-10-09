@@ -20,12 +20,12 @@ public class MaquinaDistribucionCustom extends Maquina {
     @Column(name = "probabilidad")
     private Map<String, Integer> probabilidadesPersonalizadas;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "galton_board_id", nullable = false)
     private GaltonBoard galtonBoard;
 
     @Column(nullable = false)
-    private String estado; // 'EN_SIMULACION', 'FINALIZADA'
+    private String estado = "APAGADO"; // 'INICIALIZADO', 'EN_SIMULACION', 'FINALIZADA'
 }
 
 

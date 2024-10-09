@@ -23,11 +23,11 @@ public class GaltonBoard implements Runnable {
     @Column(nullable = false)
     private int numContenedores;
 
-    @OneToOne(mappedBy = "galtonBoard", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "galtonBoard", cascade = CascadeType.ALL)
     private Distribucion distribucion;
 
     @Column(nullable = false)
-    private String estado; // 'EN_SIMULACION', 'FINALIZADA'
+    private String estado = "APAGADO"; // 'EN_SIMULACION', 'FINALIZADA'
 
     @Override
     public void run() {

@@ -20,13 +20,12 @@ public class MaquinaWorker implements Runnable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @OneToMany(mappedBy = "maquinaWorker", cascade = CascadeType.ALL)
+    private List<ComponenteWorker> componenteWorkers;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "maquina_id", nullable = false)
     private Maquina maquina;
-
-    @Transient
-    private List<ComponenteWorker> componenteWorkers;
 
     @Transient
     private ExecutorService executor;
@@ -35,14 +34,23 @@ public class MaquinaWorker implements Runnable {
     public void run() {
         try {
             System.out.println("Iniciando el ensamblaje de la máquina de tipo: " + maquina.getTipo());
-            // Logica de ensamblaje y calculo de distribucion
-            for (ComponenteWorker worker : componenteWorkers) {
-                executor.submit(worker);
+
+            if (componenteWorkers != null && !componenteWorkers.isEmpty()) {
+                // Lanza cada ComponenteWorker usando el executor
+                for (ComponenteWorker worker : componenteWorkers) {
+                    executor.submit(worker);
+                }
+                System.out.println("Todos los ComponenteWorkers han sido lanzados para la máquina de tipo: " + maquina.getTipo());
+            } else {
+                System.out.println("No hay ComponenteWorkers disponibles para la máquina de tipo: " + maquina.getTipo());
             }
-            System.out.println("Todos los ComponenteWorkers han sido lanzados para la máquina de tipo: " + maquina.getTipo());
         } catch (Exception e) {
             System.err.println("Error durante el ensamblaje de la máquina: " + e.getMessage());
+        } finally {
+            // Liberar recursos del executor si es necesario
+            executor.shutdown();
         }
     }
+
 }
 

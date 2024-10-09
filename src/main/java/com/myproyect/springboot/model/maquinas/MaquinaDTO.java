@@ -24,6 +24,9 @@ public abstract class MaquinaDTO {
     private String tipo;
 
     @NotNull
+    private String estado;
+
+    @NotNull
     private List<ComponenteDTO> componentes;
 
 }

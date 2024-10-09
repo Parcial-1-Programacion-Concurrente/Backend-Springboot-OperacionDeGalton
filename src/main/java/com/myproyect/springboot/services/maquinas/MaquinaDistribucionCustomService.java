@@ -2,26 +2,29 @@ package com.myproyect.springboot.services.maquinas;
 
 import com.myproyect.springboot.domain.factory.maquinas.MaquinaDistribucionCustom;
 import com.myproyect.springboot.repos.ComponenteRepository;
-import com.myproyect.springboot.repos.MaquinaRepository;
-import com.myproyect.springboot.services.maquinas.MaquinaService;
+import com.myproyect.springboot.repos.maquinasRepos.MaquinaDistribucionCustomRepository;
+import com.myproyect.springboot.repos.maquinasRepos.MaquinaRepository;
 import com.myproyect.springboot.util.NotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class MaquinaDistribucionCustomService extends MaquinaService {
 
+    private final MaquinaDistribucionCustomRepository maquinaDistribucionCustomRepository;
+
     public MaquinaDistribucionCustomService(final MaquinaRepository maquinaRepository,
-                                            final ComponenteRepository componenteRepository) {
+                                            final ComponenteRepository componenteRepository,
+                                            final MaquinaDistribucionCustomRepository maquinaDistribucionCustomRepository) {
         super(maquinaRepository, componenteRepository);
+        this.maquinaDistribucionCustomRepository = maquinaDistribucionCustomRepository;
+
     }
 
     @Override
     public Map<String, Integer> calcularDistribucion(Integer id) {
-        MaquinaDistribucionCustom maquina = (MaquinaDistribucionCustom) super.getMaquinaRepository().findById(id)
+        MaquinaDistribucionCustom maquina = (MaquinaDistribucionCustom) maquinaDistribucionCustomRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
 
         // Supongamos que el usuario ha definido una lista de probabilidades personalizadas

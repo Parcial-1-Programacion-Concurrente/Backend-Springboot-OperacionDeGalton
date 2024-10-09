@@ -1,5 +1,6 @@
 package com.myproyect.springboot.rest;
 
+import com.myproyect.springboot.domain.synchronization.GaltonBoard;
 import com.myproyect.springboot.model.GaltonBoardDTO;
 import com.myproyect.springboot.services.GaltonBoardService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -34,7 +35,8 @@ public class GaltonBoardResource {
     @PostMapping
     @ApiResponse(responseCode = "201", description = "Create a new Galton board")
     public ResponseEntity<Integer> createGaltonBoard(@RequestBody final GaltonBoardDTO galtonBoardDTO) {
-        final Integer createdId = galtonBoardService.create(galtonBoardDTO);
+        final GaltonBoard galtonBoard = galtonBoardService.create(galtonBoardDTO);
+        final Integer createdId = galtonBoard.getId();
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 

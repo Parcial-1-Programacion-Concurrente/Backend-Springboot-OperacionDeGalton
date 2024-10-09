@@ -1,14 +1,14 @@
-# Configuración de la base de datos
+# Configuraciï¿½n de la base de datos
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/Backend-Springboot-OperacionDeGalton?serverTimezone=UTC
     username: root
-    password: <<YOUR_PASSWORD>> # Cambia por tu contraseña
+    password: <<YOUR_PASSWORD>> # Cambia por tu contraseï¿½a
     hikari:
       connection-timeout: 30000
       maximum-pool-size: 10
 
-  # Configuración de JPA e Hibernate
+  # Configuraciï¿½n de JPA e Hibernate
   jpa:
     hibernate:
       ddl-auto: update
@@ -21,19 +21,19 @@ spring:
         id:
           new_generator_mappings: true
 
-  # Configuración del servidor
+  # Configuraciï¿½n del servidor
 server:
   port: 8080 # El backend corre en el puerto 8080
 
-# Configuración de JWT para autenticación y autorización
+# Configuraciï¿½n de JWT para autenticaciï¿½n y autorizaciï¿½n
 jwt:
-  secret: securesecretkey # Esta propiedad se utiliza, pero la clave segura se generará en el código.
-  # Duración del token en milisegundos (24 horas).
+  secret: securesecretkey # Esta propiedad se utiliza, pero la clave segura se generarï¿½ en el cï¿½digo.
+  # Duraciï¿½n del token en milisegundos (24 horas).
 
-# Configuración de CORS para permitir la comunicación desde el frontend (puerto 8082)
-# La configuración de CORS se hace principalmente en el código de configuración de seguridad (SecurityConfig.java)
+# Configuraciï¿½n de CORS para permitir la comunicaciï¿½n desde el frontend (puerto 8082)
+# La configuraciï¿½n de CORS se hace principalmente en el cï¿½digo de configuraciï¿½n de seguridad (SecurityConfig.java)
 
-# Configuración de manejo de errores
+# Configuraciï¿½n de manejo de errores
 error:
   handling:
     http-status-in-json-response: true
