@@ -4,16 +4,17 @@ import com.myproyect.springboot.domain.distribution.Distribucion;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name = "galton_board")
+@Table(name = "galton_boarod")
 @Getter
 @Setter
 public class GaltonBoard implements Runnable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @Column(nullable = false)
     private int numBolas;
@@ -21,11 +22,11 @@ public class GaltonBoard implements Runnable {
     @Column(nullable = false)
     private int numContenedores;
 
-    @OneToOne(mappedBy = "galtonBoard", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "galtonBoard", cascade = CascadeType.ALL)
     private Distribucion distribucion;
 
     @Column(nullable = false)
-    private String estado; // 'EN_SIMULACION', 'FINALIZADA'
+    private String estado = "APAGADO"; // 'EN_SIMULACION', 'FINALIZADA'
 
     @Override
     public void run() {

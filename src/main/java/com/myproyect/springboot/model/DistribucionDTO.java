@@ -11,7 +11,7 @@ import java.util.Map;
 @Setter
 public class DistribucionDTO {
 
-    private Long id;
+    private Integer id;
 
     @NotNull
     private Integer numBolas;

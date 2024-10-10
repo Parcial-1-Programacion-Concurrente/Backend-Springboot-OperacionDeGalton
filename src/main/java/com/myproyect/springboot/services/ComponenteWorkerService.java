@@ -23,24 +23,6 @@ public class ComponenteWorkerService {
         this.componenteWorkerRepository = componenteWorkerRepository;
     }
 
-    public void runComponenteWorker(Long componenteWorkerId, GaltonBoard galtonBoard, CountDownLatch latch) {
-        ComponenteWorker componenteWorker = componenteWorkerRepository.findById(componenteWorkerId)
-                .orElseThrow(() -> new NotFoundException("ComponenteWorker no encontrado con id: " + componenteWorkerId));
-
-        // Configurar el GaltonBoard antes de ejecutar el cálculo.
-        componenteWorker.setGaltonBoard(galtonBoard);
-
-        // Ejecutar la lógica del cálculo de valor en un hilo.
-        Thread workerThread = new Thread(() -> {
-            try {
-                componenteWorker.run();
-            } finally {
-                latch.countDown(); // Indicar que este worker ha terminado.
-            }
-        });
-        workerThread.start();
-    }
-
 
     public List<ComponenteWorkerDTO> findAll() {
         return componenteWorkerRepository.findAll(Sort.by("id")).stream()
@@ -48,26 +30,26 @@ public class ComponenteWorkerService {
                 .collect(Collectors.toList());
     }
 
-    public ComponenteWorkerDTO get(final Long id) {
+    public ComponenteWorkerDTO get(final Integer id) {
         return componenteWorkerRepository.findById(id)
                 .map(worker -> mapToDTO(worker, new ComponenteWorkerDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
-    public Long create(final ComponenteWorkerDTO componenteWorkerDTO) {
+    public Integer create(final ComponenteWorkerDTO componenteWorkerDTO) {
         ComponenteWorker componenteWorker = new ComponenteWorker();
         mapToEntity(componenteWorkerDTO, componenteWorker);
         return componenteWorkerRepository.save(componenteWorker).getId();
     }
 
-    public void update(final Long id, final ComponenteWorkerDTO componenteWorkerDTO) {
+    public void update(final Integer id, final ComponenteWorkerDTO componenteWorkerDTO) {
         ComponenteWorker componenteWorker = componenteWorkerRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
         mapToEntity(componenteWorkerDTO, componenteWorker);
         componenteWorkerRepository.save(componenteWorker);
     }
 
-    public void delete(final Long id) {
+    public void delete(final Integer id) {
         componenteWorkerRepository.deleteById(id);
     }
 

@@ -26,19 +26,19 @@ public class ComponenteResource {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ComponenteDTO> getComponente(@PathVariable final Long id) {
+    public ResponseEntity<ComponenteDTO> getComponente(@PathVariable final Integer id) {
         return ResponseEntity.ok(componenteService.get(id));
     }
 
     @PostMapping
     @ApiResponse(responseCode = "201", description = "Create a new componente")
-    public ResponseEntity<Long> createComponente(@RequestBody final ComponenteDTO componenteDTO) {
-        final Long createdId = componenteService.create(componenteDTO);
+    public ResponseEntity<Integer> createComponente(@RequestBody final ComponenteDTO componenteDTO) {
+        final Integer createdId = componenteService.create(componenteDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateComponente(@PathVariable final Long id,
+    public ResponseEntity<Void> updateComponente(@PathVariable final Integer id,
                                                  @RequestBody final ComponenteDTO componenteDTO) {
         componenteService.update(id, componenteDTO);
         return ResponseEntity.ok().build();
@@ -46,7 +46,7 @@ public class ComponenteResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204", description = "Delete a componente")
-    public ResponseEntity<Void> deleteComponente(@PathVariable final Long id) {
+    public ResponseEntity<Void> deleteComponente(@PathVariable final Integer id) {
         componenteService.delete(id);
         return ResponseEntity.noContent().build();
     }

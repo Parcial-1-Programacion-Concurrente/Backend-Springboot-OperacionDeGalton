@@ -11,7 +11,8 @@ import lombok.Setter;
 @Setter
 public class GaltonBoardDTO {
 
-    private Long id;
+
+    private Integer id;
 
     @NotNull
     private Integer numBolas;

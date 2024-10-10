@@ -4,28 +4,29 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import com.myproyect.springboot.domain.factory.maquinas.Maquina;
+import org.hibernate.annotations.GenericGenerator;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 @Entity
-@Table(name = "maquina_workers")
+@Table(name = "maquina_workoers")
 @Getter
 @Setter
 public class MaquinaWorker implements Runnable {
 
     @Id
+    @Column(nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
-    @Column
-    private Long maquinaId;
+    @OneToMany(mappedBy = "maquinaWorker", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ComponenteWorker> componenteWorkers = new ArrayList<>();
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "maquina_id", nullable = false)
     private Maquina maquina;
-
-    @Transient
-    private List<ComponenteWorker> componenteWorkers;
 
     @Transient
     private ExecutorService executor;
@@ -34,14 +35,23 @@ public class MaquinaWorker implements Runnable {
     public void run() {
         try {
             System.out.println("Iniciando el ensamblaje de la máquina de tipo: " + maquina.getTipo());
-            // Logica de ensamblaje y calculo de distribucion
-            for (ComponenteWorker worker : componenteWorkers) {
-                executor.submit(worker);
+
+            if (componenteWorkers != null && !componenteWorkers.isEmpty()) {
+                // Lanza cada ComponenteWorker usando el executor
+                for (ComponenteWorker worker : componenteWorkers) {
+                    executor.submit(worker);
+                }
+                System.out.println("Todos los ComponenteWorkers han sido lanzados para la máquina de tipo: " + maquina.getTipo());
+            } else {
+                System.out.println("No hay ComponenteWorkers disponibles para la máquina de tipo: " + maquina.getTipo());
             }
-            System.out.println("Todos los ComponenteWorkers han sido lanzados para la máquina de tipo: " + maquina.getTipo());
         } catch (Exception e) {
             System.err.println("Error durante el ensamblaje de la máquina: " + e.getMessage());
+        } finally {
+            // Liberar recursos del executor si es necesario
+            executor.shutdown();
         }
     }
+
 }
 

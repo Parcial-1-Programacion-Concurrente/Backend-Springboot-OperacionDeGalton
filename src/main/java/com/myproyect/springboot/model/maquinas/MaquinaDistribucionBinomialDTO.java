@@ -1,5 +1,7 @@
 package com.myproyect.springboot.model.maquinas;
 
+import com.myproyect.springboot.domain.synchronization.GaltonBoard;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,6 +13,7 @@ public class MaquinaDistribucionBinomialDTO extends MaquinaDTO {
 
     private double probabilidadExito;
 
+    @NotNull
     private String estado;
 
 }

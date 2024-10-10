@@ -2,7 +2,8 @@ package com.myproyect.springboot.services.maquinas;
 
 import com.myproyect.springboot.domain.factory.maquinas.MaquinaDistribucionBinomial;
 import com.myproyect.springboot.repos.ComponenteRepository;
-import com.myproyect.springboot.repos.MaquinaRepository;
+import com.myproyect.springboot.repos.maquinasRepos.MaquinaDistribucionBinomialRepository;
+import com.myproyect.springboot.repos.maquinasRepos.MaquinaRepository;
 import com.myproyect.springboot.util.NotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -12,14 +13,18 @@ import java.util.Map;
 @Service
 public class MaquinaDistribucionBinomialService extends MaquinaService {
 
+    private final MaquinaDistribucionBinomialRepository maquinaDistribucionBinomialRepository;
+
     public MaquinaDistribucionBinomialService(final MaquinaRepository maquinaRepository,
-                                              final ComponenteRepository componenteRepository) {
+                                              final ComponenteRepository componenteRepository,
+                                              final MaquinaDistribucionBinomialRepository maquinaDistribucionBinomialRepository) {
         super(maquinaRepository, componenteRepository);
+        this.maquinaDistribucionBinomialRepository = maquinaDistribucionBinomialRepository;
     }
 
     @Override
-    public Map<String, Integer> calcularDistribucion(Long id) {
-        MaquinaDistribucionBinomial maquina = (MaquinaDistribucionBinomial) super.getMaquinaRepository().findById(id)
+    public Map<String, Integer> calcularDistribucion(Integer id) {
+        MaquinaDistribucionBinomial maquina = (MaquinaDistribucionBinomial) maquinaDistribucionBinomialRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
 
         int n = maquina.getNumEnsayos(); // Número de ensayos

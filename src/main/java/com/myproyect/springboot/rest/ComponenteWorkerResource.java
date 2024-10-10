@@ -27,20 +27,20 @@ public class ComponenteWorkerResource {
 
     @GetMapping("/{id}")
     @ApiResponse(responseCode = "200", description = "Get a componente worker by ID")
-    public ResponseEntity<ComponenteWorkerDTO> getComponenteWorker(@PathVariable final Long id) {
+    public ResponseEntity<ComponenteWorkerDTO> getComponenteWorker(@PathVariable final Integer id) {
         return ResponseEntity.ok(componenteWorkerService.get(id));
     }
 
     @PostMapping
     @ApiResponse(responseCode = "201", description = "Create a new componente worker")
-    public ResponseEntity<Long> createComponenteWorker(@RequestBody final ComponenteWorkerDTO componenteWorkerDTO) {
-        final Long createdId = componenteWorkerService.create(componenteWorkerDTO);
+    public ResponseEntity<Integer> createComponenteWorker(@RequestBody final ComponenteWorkerDTO componenteWorkerDTO) {
+        final Integer createdId = componenteWorkerService.create(componenteWorkerDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     @ApiResponse(responseCode = "200", description = "Update an existing componente worker")
-    public ResponseEntity<Void> updateComponenteWorker(@PathVariable final Long id,
+    public ResponseEntity<Void> updateComponenteWorker(@PathVariable final Integer id,
                                                        @RequestBody final ComponenteWorkerDTO componenteWorkerDTO) {
         componenteWorkerService.update(id, componenteWorkerDTO);
         return ResponseEntity.ok().build();
@@ -48,7 +48,7 @@ public class ComponenteWorkerResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204", description = "Delete a componente worker")
-    public ResponseEntity<Void> deleteComponenteWorker(@PathVariable final Long id) {
+    public ResponseEntity<Void> deleteComponenteWorker(@PathVariable final Integer id) {
         componenteWorkerService.delete(id);
         return ResponseEntity.noContent().build();
     }

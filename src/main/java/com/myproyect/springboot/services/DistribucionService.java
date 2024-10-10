@@ -25,31 +25,30 @@ public class DistribucionService {
                 .collect(Collectors.toList());
     }
 
-    public DistribucionDTO get(final Long id) {
+    public DistribucionDTO get(final Integer id) {
         return distribucionRepository.findById(id)
                 .map(distribucion -> mapToDTO(distribucion, new DistribucionDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
-    public Long create(final DistribucionDTO distribucionDTO) {
+    public Integer create(final DistribucionDTO distribucionDTO) {
         Distribucion distribucion = new Distribucion();
         mapToEntity(distribucionDTO, distribucion);
         return distribucionRepository.save(distribucion).getId();
     }
 
-    public void update(final Long id, final DistribucionDTO distribucionDTO) {
+    public void update(final Integer id, final DistribucionDTO distribucionDTO) {
         Distribucion distribucion = distribucionRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
         mapToEntity(distribucionDTO, distribucion);
         distribucionRepository.save(distribucion);
     }
 
-    public void delete(final Long id) {
+    public void delete(final Integer id) {
         distribucionRepository.deleteById(id);
     }
 
     private DistribucionDTO mapToDTO(final Distribucion distribucion, final DistribucionDTO distribucionDTO) {
-        distribucionDTO.setId(distribucion.getId());
         distribucionDTO.setDatos(distribucion.getDatos());
         distribucionDTO.setNumBolas(distribucion.getNumBolas());
         distribucionDTO.setNumContenedores(distribucion.getNumContenedores());

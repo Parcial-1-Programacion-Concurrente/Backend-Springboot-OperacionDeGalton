@@ -12,10 +12,10 @@ import lombok.Setter;
 @Setter
 public class MaquinaFactoryDTO {
 
-    private Long id;
+    private Integer id;
 
     @NotNull
-    private Long maquinaId;
+    private Integer maquinaId;
 
     @NotNull
     private String tipoMaquina;

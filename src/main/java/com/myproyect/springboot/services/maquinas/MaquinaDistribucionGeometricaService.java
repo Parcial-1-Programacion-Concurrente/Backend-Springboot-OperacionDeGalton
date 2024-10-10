@@ -2,7 +2,8 @@ package com.myproyect.springboot.services.maquinas;
 
 import com.myproyect.springboot.domain.factory.maquinas.MaquinaDistribucionGeometrica;
 import com.myproyect.springboot.repos.ComponenteRepository;
-import com.myproyect.springboot.repos.MaquinaRepository;
+import com.myproyect.springboot.repos.maquinasRepos.MaquinaDistribucionGeometricaRepository;
+import com.myproyect.springboot.repos.maquinasRepos.MaquinaRepository;
 import com.myproyect.springboot.util.NotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -12,14 +13,19 @@ import java.util.Map;
 @Service
 public class MaquinaDistribucionGeometricaService extends MaquinaService {
 
+    private final MaquinaDistribucionGeometricaRepository maquinaDistribucionGeometricaRepository;
+
     public MaquinaDistribucionGeometricaService(final MaquinaRepository maquinaRepository,
-                                                final ComponenteRepository componenteRepository) {
+                                                final ComponenteRepository componenteRepository,
+                                                final MaquinaDistribucionGeometricaRepository maquinaDistribucionGeometricaRepository
+                                                ) {
         super(maquinaRepository, componenteRepository);
+        this.maquinaDistribucionGeometricaRepository = maquinaDistribucionGeometricaRepository;
     }
 
     @Override
-    public Map<String, Integer> calcularDistribucion(Long id) {
-        MaquinaDistribucionGeometrica maquina = (MaquinaDistribucionGeometrica) super.getMaquinaRepository().findById(id)
+    public Map<String, Integer> calcularDistribucion(Integer id) {
+        MaquinaDistribucionGeometrica maquina = (MaquinaDistribucionGeometrica) maquinaDistribucionGeometricaRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
 
         double p = maquina.getProbabilidadExito(); // Probabilidad de éxito

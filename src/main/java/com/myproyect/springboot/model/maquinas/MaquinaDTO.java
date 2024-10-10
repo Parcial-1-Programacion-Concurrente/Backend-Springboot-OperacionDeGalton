@@ -2,6 +2,7 @@ package com.myproyect.springboot.model.maquinas;
 
 
 
+import com.myproyect.springboot.domain.synchronization.GaltonBoard;
 import com.myproyect.springboot.model.ComponenteDTO;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -15,7 +16,7 @@ public abstract class MaquinaDTO {
 
     @NotNull
     @NotEmpty
-    private Long id;
+    private Integer id;
 
     @NotNull
     private int numeroComponentesRequeridos;
@@ -24,6 +25,11 @@ public abstract class MaquinaDTO {
     private String tipo;
 
     @NotNull
+    private String estado;
+
+    @NotNull
     private List<ComponenteDTO> componentes;
+
+    private Integer galtonBoardId;
 
 }

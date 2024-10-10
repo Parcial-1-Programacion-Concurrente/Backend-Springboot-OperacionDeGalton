@@ -11,7 +11,7 @@ import lombok.Setter;
 @Setter
 public class ComponenteDTO {
 
-    private Long id;
+    private Integer id;
 
     @NotNull
     private String tipo;
@@ -19,5 +19,5 @@ public class ComponenteDTO {
     @NotNull
     private Double valorCalculado;
 
-    private Long estacionTrabajoId;
+    private Integer estacionTrabajoId;
 }

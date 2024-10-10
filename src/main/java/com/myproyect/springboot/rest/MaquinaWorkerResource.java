@@ -27,20 +27,20 @@ public class MaquinaWorkerResource {
 
     @GetMapping("/{id}")
     @ApiResponse(responseCode = "200", description = "Get a maquina worker by ID")
-    public ResponseEntity<MaquinaWorkerDTO> getMaquinaWorker(@PathVariable final Long id) {
+    public ResponseEntity<MaquinaWorkerDTO> getMaquinaWorker(@PathVariable final Integer id) {
         return ResponseEntity.ok(maquinaWorkerService.get(id));
     }
 
     @PostMapping
     @ApiResponse(responseCode = "201", description = "Create a new maquina worker")
-    public ResponseEntity<Long> createMaquinaWorker(@RequestBody final MaquinaWorkerDTO maquinaWorkerDTO) {
-        final Long createdId = maquinaWorkerService.create(maquinaWorkerDTO);
+    public ResponseEntity<Integer> createMaquinaWorker(@RequestBody final MaquinaWorkerDTO maquinaWorkerDTO) {
+        final Integer createdId = maquinaWorkerService.create(maquinaWorkerDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     @ApiResponse(responseCode = "200", description = "Update an existing maquina worker")
-    public ResponseEntity<Void> updateMaquinaWorker(@PathVariable final Long id,
+    public ResponseEntity<Void> updateMaquinaWorker(@PathVariable final Integer id,
                                                     @RequestBody final MaquinaWorkerDTO maquinaWorkerDTO) {
         maquinaWorkerService.update(id, maquinaWorkerDTO);
         return ResponseEntity.ok().build();
@@ -48,7 +48,7 @@ public class MaquinaWorkerResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204", description = "Delete a maquina worker")
-    public ResponseEntity<Void> deleteMaquinaWorker(@PathVariable final Long id) {
+    public ResponseEntity<Void> deleteMaquinaWorker(@PathVariable final Integer id) {
         maquinaWorkerService.delete(id);
         return ResponseEntity.noContent().build();
     }

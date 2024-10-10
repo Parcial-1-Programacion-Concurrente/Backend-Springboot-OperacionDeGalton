@@ -10,10 +10,10 @@ import java.util.List;
 @Setter
 public class MaquinaWorkerDTO {
 
-    private Long id;
+    private Integer id;
 
     @NotNull
-    private Long maquinaId;
+    private Integer maquinaId;
 
     private List<ComponenteWorkerDTO> componenteWorkers;
 }

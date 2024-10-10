@@ -26,19 +26,19 @@ public class DistribucionResource {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DistribucionDTO> getDistribucion(@PathVariable final Long id) {
+    public ResponseEntity<DistribucionDTO> getDistribucion(@PathVariable final Integer id) {
         return ResponseEntity.ok(distribucionService.get(id));
     }
 
     @PostMapping
     @ApiResponse(responseCode = "201", description = "Create a new distribucion")
-    public ResponseEntity<Long> createDistribucion(@RequestBody final DistribucionDTO distribucionDTO) {
-        final Long createdId = distribucionService.create(distribucionDTO);
+    public ResponseEntity<Integer> createDistribucion(@RequestBody final DistribucionDTO distribucionDTO) {
+        final Integer createdId = distribucionService.create(distribucionDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateDistribucion(@PathVariable final Long id,
+    public ResponseEntity<Void> updateDistribucion(@PathVariable final Integer id,
                                                    @RequestBody final DistribucionDTO distribucionDTO) {
         distribucionService.update(id, distribucionDTO);
         return ResponseEntity.ok().build();
@@ -46,7 +46,7 @@ public class DistribucionResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204", description = "Delete a distribucion")
-    public ResponseEntity<Void> deleteDistribucion(@PathVariable final Long id) {
+    public ResponseEntity<Void> deleteDistribucion(@PathVariable final Integer id) {
         distribucionService.delete(id);
         return ResponseEntity.noContent().build();
     }

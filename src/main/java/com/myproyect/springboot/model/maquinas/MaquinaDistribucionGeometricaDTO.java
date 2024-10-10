@@ -1,5 +1,6 @@
 package com.myproyect.springboot.model.maquinas;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,6 +12,7 @@ public class MaquinaDistribucionGeometricaDTO extends MaquinaDTO {
 
     private int maximoEnsayos;
 
+    @NotNull
     private String estado;
 
 }
