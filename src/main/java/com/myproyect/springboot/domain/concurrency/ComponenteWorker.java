@@ -23,11 +23,11 @@ public class ComponenteWorker implements Runnable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "componente_id", nullable = false)
     private Componente componente;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "maquina_worker_id", nullable = false)
     private MaquinaWorker maquinaWorker;
 

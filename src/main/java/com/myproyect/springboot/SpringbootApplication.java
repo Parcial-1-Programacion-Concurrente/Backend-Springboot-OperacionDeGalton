@@ -1,10 +1,7 @@
 package com.myproyect.springboot;
 
-import com.myproyect.springboot.domain.concurrency.MaquinaWorker;
-import com.myproyect.springboot.domain.factory.maquinas.FabricaGauss;
 import com.myproyect.springboot.model.FabricaGaussDTO;
 import com.myproyect.springboot.services.FabricaGaussService;
-import jakarta.annotation.PostConstruct;
 
 import javax.sql.DataSource;
 
@@ -12,11 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.*;
 import java.util.Scanner;
 
 @SpringBootApplication

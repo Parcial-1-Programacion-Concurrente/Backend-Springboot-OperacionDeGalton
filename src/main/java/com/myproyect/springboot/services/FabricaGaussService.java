@@ -2,6 +2,7 @@ package com.myproyect.springboot.services;
 
 import com.myproyect.springboot.domain.concurrency.*;
 import com.myproyect.springboot.domain.distribution.Distribucion;
+import com.myproyect.springboot.domain.factory.FabricaGauss;
 import com.myproyect.springboot.domain.factory.maquinas.*;
 import com.myproyect.springboot.domain.synchronization.GaltonBoard;
 import com.myproyect.springboot.model.DistribucionDTO;
@@ -9,7 +10,7 @@ import com.myproyect.springboot.model.FabricaGaussDTO;
 import com.myproyect.springboot.model.GaltonBoardDTO;
 import com.myproyect.springboot.model.maquinas.*;
 import com.myproyect.springboot.repos.FabricaGaussRepository;
-import com.myproyect.springboot.repos.GaltonBoardRepository;
+import com.myproyect.springboot.repos.maquinasRepos.MaquinaRepository;
 import com.myproyect.springboot.services.maquinas.MaquinaService;
 import com.myproyect.springboot.util.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,9 @@ public class FabricaGaussService {
     @Autowired
     private MaquinaService maquinaService;
 
+    @Autowired
+    private MaquinaRepository maquinaRepository;
+
     private final FabricaGaussRepository fabricaGaussRepository;
 
     @Autowired
@@ -46,13 +50,13 @@ public class FabricaGaussService {
         this.maquinaService = maquinaService;
     }
 
-    // Método para solicitar la detención de la simulación
+    // Metodo para solicitar la detención de la simulación
     public void detenerSimulacion() {
         System.out.println("Solicitando detener la simulación...");
         semaphore.drainPermits(); // Elimina todos los permisos, haciendo que los hilos se detengan
     }
 
-    // Método para iniciar la simulación de la fábrica
+    // Metodo para iniciar la simulación de la fábrica
     public void iniciarProduccion() {
         ExecutorService executorService = Executors.newFixedThreadPool(NUMBER_OF_MACHINES);
         List<Future<?>> futures = new ArrayList<>();
@@ -61,20 +65,16 @@ public class FabricaGaussService {
 
         // Crear todos los GaltonBoards antes de iniciar la producción de máquinas
         for (int i = 0; i < NUMBER_OF_MACHINES; i++) {
-            // Crear el GaltonBoard y guardarlo
             GaltonBoard galtonBoard = crearYGuardarGaltonBoard(i);
 
-            // Verificar si el GaltonBoard fue efectivamente guardado y tiene un ID válido
             if (galtonBoard == null || galtonBoard.getId() == null) {
                 throw new IllegalStateException("El GaltonBoard no se guardó correctamente y el ID es nulo.");
             }
 
-            // Agregar el ID al mapa para su uso posterior
             indexToGaltonBoardId.put(i, galtonBoard.getId());
             System.out.println("GaltonBoard creado con ID: " + galtonBoard.getId());
         }
 
-        // Imprimir el contenido del mapa de IDs
         System.out.println("Contenido de indexToGaltonBoardId: " + indexToGaltonBoardId);
 
         // Iniciar la producción de las máquinas
@@ -84,7 +84,6 @@ public class FabricaGaussService {
 
             Future<?> future = executorService.submit(() -> {
                 try {
-                    // Verificar si se debe detener la simulación
                     if (semaphore.availablePermits() == 0) {
                         System.out.println("Deteniendo la simulación de la máquina " + index + " debido a la señal de detención.");
                         return;
@@ -103,7 +102,8 @@ public class FabricaGaussService {
                         throw new IllegalStateException("El ID de la máquina no debe ser nulo después de crear.");
                     }
 
-                    Maquina maquina = maquinaService.ToEntity(maquinaDTO);
+                    // Recuperar la máquina desde la base de datos
+                    Maquina maquina = getEntityById(maquinaId);
 
                     // Iniciar el trabajo de la máquina
                     maquinaWorkerService.iniciarTrabajo(maquina, galtonBoard);
@@ -112,28 +112,8 @@ public class FabricaGaussService {
                     galtonBoardService.simularCaidaDeBolas(galtonBoard.getId());
                     galtonBoardService.mostrarDistribucion(galtonBoard.getId());
 
-                    // Crear una instancia de DistribucionDTO
-                    DistribucionDTO distribucionDTO = new DistribucionDTO();
-
-                    // Obtener la distribución actual del GaltonBoard (si existe)
-                    Distribucion distribucionActual = galtonBoard.getDistribucion();
-
-                    // Verificar si existe una distribución para copiar los datos
-                    if (distribucionActual != null) {
-                        distribucionDTO.setDatos(new HashMap<>(distribucionActual.getDatos()));
-                        distribucionDTO.setNumBolas(distribucionActual.getNumBolas());
-                        distribucionDTO.setNumContenedores(distribucionActual.getNumContenedores());
-                    } else {
-                        distribucionDTO.setDatos(new HashMap<>());
-                        distribucionDTO.setNumBolas(galtonBoard.getNumBolas());
-                        distribucionDTO.setNumContenedores(galtonBoard.getNumContenedores());
-
-                        for (int x = 1; x <= galtonBoard.getNumContenedores(); x++) {
-                            distribucionDTO.getDatos().put("Contenedor " + x, 0);
-                        }
-                    }
-
-                    // Actualizar la distribución en el GaltonBoard usando el DTO
+                    // Actualizar la distribución en el GaltonBoard
+                    DistribucionDTO distribucionDTO = obtenerDistribucionDTO(galtonBoard);
                     galtonBoardService.actualizarDistribucion(galtonBoard, distribucionDTO);
                     System.out.println("Distribución actualizada para el GaltonBoard con ID: " + galtonBoard.getId());
 
@@ -159,7 +139,29 @@ public class FabricaGaussService {
         }
     }
 
-    // Método para crear y guardar un GaltonBoard
+    // Método auxiliar para obtener DistribucionDTO
+    private DistribucionDTO obtenerDistribucionDTO(GaltonBoard galtonBoard) {
+        DistribucionDTO distribucionDTO = new DistribucionDTO();
+        Distribucion distribucionActual = galtonBoard.getDistribucion();
+
+        if (distribucionActual != null) {
+            distribucionDTO.setDatos(new HashMap<>(distribucionActual.getDatos()));
+            distribucionDTO.setNumBolas(distribucionActual.getNumBolas());
+            distribucionDTO.setNumContenedores(distribucionActual.getNumContenedores());
+        } else {
+            distribucionDTO.setDatos(new HashMap<>());
+            distribucionDTO.setNumBolas(galtonBoard.getNumBolas());
+            distribucionDTO.setNumContenedores(galtonBoard.getNumContenedores());
+
+            for (int x = 1; x <= galtonBoard.getNumContenedores(); x++) {
+                distribucionDTO.getDatos().put("Contenedor " + x, 0);
+            }
+        }
+        return distribucionDTO;
+    }
+
+
+    // Metodo para crear y guardar un GaltonBoard
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public GaltonBoard crearYGuardarGaltonBoard(int index) {
         GaltonBoard galtonBoard = new GaltonBoard();
@@ -178,7 +180,7 @@ public class FabricaGaussService {
         return savedGaltonBoard;
     }
 
-    // Método para crear el DTO de una máquina basado en el índice y el ID del GaltonBoard
+    // Metodo para crear el DTO de una máquina basado en el índice y el ID del GaltonBoard
     public MaquinaDTO createMaquinaDTO(int index, Integer galtonBoardId) {
         MaquinaDTO maquinaDTO;
 
@@ -187,7 +189,7 @@ public class FabricaGaussService {
                 MaquinaDistribucionBinomialDTO binomialDTO = new MaquinaDistribucionBinomialDTO();
                 binomialDTO.setNumEnsayos(10);
                 binomialDTO.setProbabilidadExito(0.5);
-                binomialDTO.setNumeroComponentesRequeridos(3);
+                binomialDTO.setNumeroComponentesRequeridos(5);
                 binomialDTO.setTipo("BINOMIAL");
                 binomialDTO.setEstado("INICIALIZADO");
                 binomialDTO.setGaltonBoardId(galtonBoardId);
@@ -198,7 +200,7 @@ public class FabricaGaussService {
                 MaquinaDistribucionGeometricaDTO geometricaDTO = new MaquinaDistribucionGeometricaDTO();
                 geometricaDTO.setMaximoEnsayos(20);
                 geometricaDTO.setProbabilidadExito(0.7);
-                geometricaDTO.setNumeroComponentesRequeridos(3);
+                geometricaDTO.setNumeroComponentesRequeridos(5);
                 geometricaDTO.setTipo("GEOMETRICA");
                 geometricaDTO.setEstado("INICIALIZADO");
                 geometricaDTO.setGaltonBoardId(galtonBoardId);
@@ -209,7 +211,7 @@ public class FabricaGaussService {
                 MaquinaDistribucionExponencialDTO exponencialDTO = new MaquinaDistribucionExponencialDTO();
                 exponencialDTO.setMaximoValor(30);
                 exponencialDTO.setLambda(0.8);
-                exponencialDTO.setNumeroComponentesRequeridos(3);
+                exponencialDTO.setNumeroComponentesRequeridos(5);
                 exponencialDTO.setTipo("EXPONENCIAL");
                 exponencialDTO.setEstado("INICIALIZADO");
                 exponencialDTO.setGaltonBoardId(galtonBoardId);
@@ -221,7 +223,7 @@ public class FabricaGaussService {
                 normalDTO.setMedia(40);
                 normalDTO.setDesviacionEstandar(0.5);
                 normalDTO.setMaximoValor(50);
-                normalDTO.setNumeroComponentesRequeridos(3);
+                normalDTO.setNumeroComponentesRequeridos(5);
                 normalDTO.setTipo("NORMAL");
                 normalDTO.setEstado("INICIALIZADO");
                 normalDTO.setGaltonBoardId(galtonBoardId);
@@ -232,7 +234,7 @@ public class FabricaGaussService {
                 MaquinaDistribucionPoissonDTO poissonDTO = new MaquinaDistribucionPoissonDTO();
                 poissonDTO.setLambda(50);
                 poissonDTO.setMaximoValor(60);
-                poissonDTO.setNumeroComponentesRequeridos(3);
+                poissonDTO.setNumeroComponentesRequeridos(5);
                 poissonDTO.setTipo("POISSON");
                 poissonDTO.setEstado("INICIALIZADO");
                 poissonDTO.setGaltonBoardId(galtonBoardId);
@@ -242,7 +244,7 @@ public class FabricaGaussService {
             case 5:
                 MaquinaDistribucionUniformeDTO uniformeDTO = new MaquinaDistribucionUniformeDTO();
                 uniformeDTO.setNumValores(10);
-                uniformeDTO.setNumeroComponentesRequeridos(3);
+                uniformeDTO.setNumeroComponentesRequeridos(5);
                 uniformeDTO.setTipo("UNIFORME");
                 uniformeDTO.setEstado("INICIALIZADO");
                 uniformeDTO.setGaltonBoardId(galtonBoardId);
@@ -251,7 +253,7 @@ public class FabricaGaussService {
 
             case 6:
                 MaquinaDistribucionCustomDTO customDTO = new MaquinaDistribucionCustomDTO();
-                customDTO.setNumeroComponentesRequeridos(3);
+                customDTO.setNumeroComponentesRequeridos(5);
                 customDTO.setTipo("CUSTOM");
                 customDTO.setEstado("INICIALIZADO");
                 customDTO.setGaltonBoardId(galtonBoardId);
@@ -312,8 +314,8 @@ public class FabricaGaussService {
         return fabricaGaussDTO;
     }
 
-    public FabricaGauss getEntityById(final Integer id) {
-        return fabricaGaussRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Fábrica no encontrada con ID: " + id));
+    public Maquina getEntityById(Integer id) {
+        return maquinaRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Máquina no encontrada con ID: " + id));
     }
 }

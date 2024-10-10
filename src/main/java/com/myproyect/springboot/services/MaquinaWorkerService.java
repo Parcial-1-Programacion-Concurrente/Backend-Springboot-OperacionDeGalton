@@ -1,23 +1,23 @@
 package com.myproyect.springboot.services;
 
 import com.myproyect.springboot.domain.concurrency.ComponenteWorker;
+import com.myproyect.springboot.domain.concurrency.MaquinaWorker;
+import com.myproyect.springboot.domain.concurrency.Componente;
 import com.myproyect.springboot.domain.factory.maquinas.Maquina;
 import com.myproyect.springboot.domain.synchronization.GaltonBoard;
 import com.myproyect.springboot.model.MaquinaWorkerDTO;
-import com.myproyect.springboot.domain.concurrency.MaquinaWorker;
-import com.myproyect.springboot.domain.concurrency.Componente;
+import com.myproyect.springboot.repos.ComponenteRepository;
 import com.myproyect.springboot.repos.ComponenteWorkerRepository;
-import com.myproyect.springboot.repos.maquinasRepos.MaquinaRepository;
+import com.myproyect.springboot.repos.GaltonBoardRepository;
 import com.myproyect.springboot.repos.MaquinaWorkerRepository;
+import com.myproyect.springboot.repos.maquinasRepos.MaquinaRepository;
 import com.myproyect.springboot.util.NotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -28,10 +28,14 @@ public class MaquinaWorkerService {
     @Autowired
     private MaquinaRepository maquinaRepository;
 
+    @Autowired
+    private ComponenteRepository componenteRepository;
+
+    @Autowired
+    private GaltonBoardRepository galtonBoardRepository;
 
     private final MaquinaWorkerRepository maquinaWorkerRepository;
     private final ComponenteWorkerRepository componenteWorkerRepository;
-    private final ExecutorService executorService = Executors.newFixedThreadPool(10);
 
     @Autowired
     public MaquinaWorkerService(final MaquinaWorkerRepository maquinaWorkerRepository,
@@ -40,46 +44,88 @@ public class MaquinaWorkerService {
         this.componenteWorkerRepository = componenteWorkerRepository;
     }
 
+    @Transactional
     public void iniciarTrabajo(Maquina maquina, GaltonBoard galtonBoard) {
-        // Guardar la máquina antes de asociarla a un MaquinaWorker
-        maquina = maquinaRepository.save(maquina);
+        try {
 
-        // Crear una nueva instancia de MaquinaWorker
-        MaquinaWorker maquinaWorker = new MaquinaWorker();
-        maquinaWorker.setMaquina(maquina);
-        maquinaWorker.setExecutor(Executors.newFixedThreadPool(maquina.getNumeroComponentesRequeridos()));
+            // Verificar si el GaltonBoard está persistido
+            if (galtonBoard.getId() == null) {
+                galtonBoard = galtonBoardRepository.save(galtonBoard);
+                System.out.println("GaltonBoard guardado con ID: " + galtonBoard.getId());
+            } else {
+                System.out.println("GaltonBoard ya está persistido con ID: " + galtonBoard.getId());
+            }
 
-        // Inicializar la lista de ComponenteWorkers si no está ya inicializada
-        if (maquinaWorker.getComponenteWorkers() == null) {
+            // Asignar el GaltonBoard a la Maquina antes de guardarla
+            maquina.setGaltonBoard(galtonBoard);
+
+            // Guardar la máquina antes de asociarla a un MaquinaWorker
+            maquina = maquinaRepository.save(maquina);
+
+            if (maquina.getId() == null) {
+                System.out.println("Error: La máquina no fue guardada correctamente.");
+                return;
+            }
+
+
+            // Crear una nueva instancia de MaquinaWorker
+            MaquinaWorker maquinaWorker = new MaquinaWorker();
+            maquinaWorker.setMaquina(maquina);
+
+            int numComponentes = maquina.getNumeroComponentesRequeridos();
+
+            if (numComponentes <= 0) {
+                throw new IllegalArgumentException("El número de componentes requeridos debe ser mayor que cero. Valor actual: " + numComponentes);
+            }
+
+            System.out.println("Número de componentes requeridos para la máquina de tipo " + maquina.getTipo() + ": " + numComponentes);
+
+            maquinaWorker.setExecutor(Executors.newFixedThreadPool(numComponentes));
+
+            // Inicializar la lista de ComponenteWorkers
             maquinaWorker.setComponenteWorkers(new ArrayList<>());
+
+            // Guardar el MaquinaWorker antes de asignarle los ComponenteWorkers
+            maquinaWorker = maquinaWorkerRepository.save(maquinaWorker);
+
+
+            // Crear y asignar los ComponenteWorkers
+            for (int i = 0; i < numComponentes; i++) {
+                ComponenteWorker worker = new ComponenteWorker();
+
+                // Crear un nuevo componente para cada worker
+                Componente componente = new Componente();
+                componente.setTipo("COMPONENTE_TIPO_" + (i + 1)); // Asignar un tipo único
+
+                // Asignar la máquina al componente
+                componente.setMaquina(maquina);
+
+                // Guardar el componente antes de asociarlo
+                componente = componenteRepository.save(componente);
+
+                // Asigna el componente al worker
+                worker.setComponente(componente);
+
+                // Asignar la máquina worker
+                worker.setMaquinaWorker(maquinaWorker);
+
+                worker.setGaltonBoard(galtonBoard);
+
+                // Agregar el worker a la lista de componentes
+                maquinaWorker.getComponenteWorkers().add(worker);
+            }
+
+            // Guardar el MaquinaWorker en la base de datos
+            maquinaWorker = maquinaWorkerRepository.save(maquinaWorker);
+
+            // Ejecutar el MaquinaWorker en un nuevo hilo
+            new Thread(maquinaWorker).start();
+
+            System.out.println("Trabajo de MaquinaWorker iniciado para la máquina de tipo: " + maquina.getTipo());
+        } catch (Exception e) {
+            System.out.println("Error al iniciar el trabajo de la máquina de tipo " + maquina.getTipo() + ": " + e.getMessage());
+            e.printStackTrace();
         }
-
-        // Dentro de iniciarTrabajo en MaquinaWorkerService
-        for (int i = 0; i < maquina.getNumeroComponentesRequeridos(); i++) {
-            ComponenteWorker worker = new ComponenteWorker();
-
-            // Crea un nuevo componente para cada worker
-            Componente componente = new Componente();
-            componente.setTipo("COMPONENTE_TIPO_" + (i + 1)); // Asignar un tipo único
-            worker.setComponente(componente); // Asigna el componente al worker
-
-            // Asignar la máquina
-            worker.setMaquinaWorker(maquinaWorker);
-
-            worker.setGaltonBoard(galtonBoard);
-
-            // Agregar el worker a la lista de componentes
-            maquinaWorker.getComponenteWorkers().add(worker);
-        }
-
-
-        // Guardar el MaquinaWorker en la base de datos
-        maquinaWorker = maquinaWorkerRepository.save(maquinaWorker);
-
-        // Ejecutar el MaquinaWorker en un nuevo hilo
-        new Thread(maquinaWorker).start();
-
-        System.out.println("Trabajo de MaquinaWorker iniciado para la máquina de tipo: " + maquina.getTipo());
     }
 
 
@@ -89,10 +135,12 @@ public class MaquinaWorkerService {
         Map<String, Integer> distribucion = new HashMap<>();
 
         // Simulación del cálculo de distribución basado en los valores de los componentes.
-        maquina.getComponentes().forEach(componente -> {
-            String tipo = componente.getTipo();
-            distribucion.put(tipo, distribucion.getOrDefault(tipo, 0) + 1);
-        });
+        if (maquina.getComponentes() != null) {
+            maquina.getComponentes().forEach(componente -> {
+                String tipo = componente.getTipo();
+                distribucion.put(tipo, distribucion.getOrDefault(tipo, 0) + 1);
+            });
+        }
 
         System.out.println("Distribución calculada para la máquina de tipo " + maquina.getTipo() + ": " + distribucion);
         return distribucion;
@@ -102,7 +150,7 @@ public class MaquinaWorkerService {
     public void ensamblarMaquina(MaquinaWorker maquinaWorker) {
         // Verificar si todos los ComponenteWorkers han terminado su trabajo
         List<ComponenteWorker> workersPendientes = componenteWorkerRepository.findAllByMaquinaWorker(maquinaWorker)
-                .stream().filter(worker -> !worker.isTrabajoCompletado()).toList();
+                .stream().filter(worker -> !worker.isTrabajoCompletado()).collect(Collectors.toList());
 
         if (workersPendientes.isEmpty() && validarComponentes(maquinaWorker.getMaquina())) {
             // Calcular la distribución final de los componentes de la máquina
@@ -155,7 +203,7 @@ public class MaquinaWorkerService {
 
     private MaquinaWorker mapToEntity(final MaquinaWorkerDTO dto, final MaquinaWorker worker) {
         if (dto.getMaquinaId() != null) {
-            // Aquí debes buscar la instancia de Maquina en el repositorio y asociarla con el worker.
+            // Buscar la instancia de Maquina en el repositorio y asociarla con el worker.
             Maquina maquina = maquinaRepository.findById(dto.getMaquinaId())
                     .orElseThrow(() -> new NotFoundException("Maquina no encontrada con ID: " + dto.getMaquinaId()));
             worker.setMaquina(maquina);
@@ -177,7 +225,7 @@ public class MaquinaWorkerService {
 
         // Verificar que la máquina tenga al menos un número mínimo de componentes (por ejemplo, 3).
         int minimoComponentes = 3;
-        if (maquina.getComponentes().size() < minimoComponentes) {
+        if (maquina.getNumeroComponentesRequeridos() < minimoComponentes) {
             System.out.println("La máquina requiere al menos " + minimoComponentes + " componentes para ser ensamblada.");
             return false;
         }

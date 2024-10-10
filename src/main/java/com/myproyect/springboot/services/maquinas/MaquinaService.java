@@ -341,11 +341,10 @@ public abstract class MaquinaService {
         return maquina;
     }
 
-    // Metodo para ensamblar una máquina con una lista de componentes
     public boolean ensamblar(Integer maquinaId, List<ComponenteDTO> componentesDTO) {
         // Recuperar la máquina por su ID
         Maquina maquina = maquinaRepository.findById(maquinaId)
-                .orElseThrow(() -> new NotFoundException("Maquina no encontrada con id: " + maquinaId));
+                .orElseThrow(() -> new NotFoundException("Máquina no encontrada con ID: " + maquinaId));
 
         // Convertir los DTOs a entidades de componentes
         List<Componente> componentes = componentesDTO.stream()
@@ -354,6 +353,7 @@ public abstract class MaquinaService {
                     componente.setId(dto.getId());
                     componente.setTipo(dto.getTipo());
                     componente.setValorCalculado(dto.getValorCalculado());
+                    componente.setMaquina(maquina); // Asignar la máquina al componente
                     return componente;
                 })
                 .collect(Collectors.toList());
@@ -364,16 +364,16 @@ public abstract class MaquinaService {
             return false;
         }
 
-        // Asignar los componentes a la máquina si son válidos y guardar en el repositorio
+        // Asignar los componentes a la máquina
         maquina.setComponentes(componentes);
-        maquinaRepository.save(maquina);
 
-        // Guardar los componentes actualizados en el repositorio
-        componenteRepository.saveAll(componentes);
+        // Guardar la máquina y los componentes
+        maquinaRepository.save(maquina);
 
         System.out.println("La máquina ha sido ensamblada con éxito.");
         return true;
     }
+
 
     // Metodo para validar los componentes antes del ensamblaje
     public boolean validarComponentes(Maquina maquina, List<Componente> componentes) {
@@ -414,7 +414,6 @@ public abstract class MaquinaService {
     }
     // Validación específica para MaquinaDistribucionBinomial
     private boolean validarComponentesBinomial(List<Componente> componentes) {
-        // Verificar que haya al menos dos tipos diferentes de componentes, por ejemplo
         long tipo1Count = componentes.stream().filter(c -> c.getTipo().equals("Tipo1")).count();
         long tipo2Count = componentes.stream().filter(c -> c.getTipo().equals("Tipo2")).count();
         if (tipo1Count < 1 || tipo2Count < 1) {
@@ -522,6 +521,7 @@ public abstract class MaquinaService {
 
         maquina.setTipo(maquinaDTO.getTipo());
         maquina.setEstado(maquinaDTO.getEstado());
+
 
         return maquina;
     }

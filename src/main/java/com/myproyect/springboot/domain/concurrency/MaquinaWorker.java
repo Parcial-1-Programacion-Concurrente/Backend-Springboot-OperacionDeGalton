@@ -6,6 +6,7 @@ import lombok.Setter;
 import com.myproyect.springboot.domain.factory.maquinas.Maquina;
 import org.hibernate.annotations.GenericGenerator;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
@@ -20,8 +21,8 @@ public class MaquinaWorker implements Runnable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToMany(mappedBy = "maquinaWorker", cascade = CascadeType.ALL)
-    private List<ComponenteWorker> componenteWorkers;
+    @OneToMany(mappedBy = "maquinaWorker", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ComponenteWorker> componenteWorkers = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "maquina_id", nullable = false)

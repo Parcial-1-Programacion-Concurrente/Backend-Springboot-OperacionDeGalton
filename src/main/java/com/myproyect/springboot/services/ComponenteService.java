@@ -49,14 +49,12 @@ public class ComponenteService {
     }
 
     private ComponenteDTO mapToDTO(final Componente componente, final ComponenteDTO componenteDTO) {
-        componenteDTO.setId(componente.getId());
         componenteDTO.setTipo(componente.getTipo());
         componenteDTO.setValorCalculado(componente.getValorCalculado());
         return componenteDTO;
     }
 
     private Componente mapToEntity(final ComponenteDTO componenteDTO, final Componente componente) {
-        componente.setId(componenteDTO.getId());
         componente.setTipo(componenteDTO.getTipo());
         componente.setValorCalculado(componenteDTO.getValorCalculado());
         return componente;

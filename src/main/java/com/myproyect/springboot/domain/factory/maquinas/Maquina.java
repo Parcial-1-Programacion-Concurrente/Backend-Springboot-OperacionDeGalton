@@ -19,7 +19,6 @@ import java.util.Map;
 public abstract class Maquina {
 
     @Id
-    @Column(nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
@@ -29,8 +28,8 @@ public abstract class Maquina {
     @Column(nullable = false)
     private int numeroComponentesRequeridos;
 
-    @OneToMany(mappedBy = "maquina", cascade = CascadeType.ALL)
-    private List<Componente> componentes;
+    @OneToMany(mappedBy = "maquina", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Componente> componentes = new ArrayList<>();
 
     @Transient
     private Map<String, Integer> distribucion;

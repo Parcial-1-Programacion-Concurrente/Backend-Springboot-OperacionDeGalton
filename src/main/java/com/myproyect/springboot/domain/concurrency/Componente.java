@@ -6,6 +6,8 @@ import lombok.Setter;
 import com.myproyect.springboot.domain.factory.maquinas.Maquina;
 import org.hibernate.annotations.GenericGenerator;
 
+import java.util.List;
+
 @Entity
 @Table(name = "componentoes")
 @Getter
@@ -23,16 +25,14 @@ public class Componente {
     @Column(nullable = false)
     private double valorCalculado;
 
-    @ManyToOne
+    @OneToMany(mappedBy = "componente")
+    private List<ComponenteWorker> componenteWorkers;
+
+    @ManyToOne(optional = false)
     @JoinColumn(name = "maquina_id", nullable = false)
     private Maquina maquina;
 
     public Componente() {
-    }
-
-    public Componente(String tipo, double valorCalculado) {
-        this.tipo = tipo;
-        this.valorCalculado = valorCalculado;
     }
 }
 
