@@ -15,6 +15,4 @@ public class MaquinaDistribucionPoissonDTO extends MaquinaDTO {
     @NotNull
     private String estado;
 
-    private Integer galtonBoardId;
-
 }

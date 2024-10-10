@@ -7,14 +7,17 @@ import com.myproyect.springboot.model.GaltonBoardDTO;
 import com.myproyect.springboot.repos.DistribucionRepository;
 import com.myproyect.springboot.repos.GaltonBoardRepository;
 import com.myproyect.springboot.util.NotFoundException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -86,11 +89,13 @@ public class GaltonBoardService {
 
     // Metodo para actualizar la distribución de un GaltonBoard con una DistribucionDTO
     public void actualizarDistribucion(GaltonBoard galtonBoard, DistribucionDTO distribucionDTO) {
+
+        System.out.println("Actualizando distribución para GaltonBoard con ID: " + galtonBoard.getId());
+
         // Asegurarse de que la distribución no sea null
         if (galtonBoard.getDistribucion() == null) {
             galtonBoard.setDistribucion(new Distribucion());
         }
-
         // Obtener la instancia de la distribución
         Distribucion distribucion = galtonBoard.getDistribucion();
 
@@ -104,6 +109,9 @@ public class GaltonBoardService {
         // Guardar la distribución antes de guardar el GaltonBoard
         distribucion = distribucionRepository.save(distribucion);
         galtonBoard.setDistribucion(distribucion);
+
+        System.out.println("Distribución actualizada para GaltonBoard con ID: " + galtonBoard.getId());
+
     }
 
     // Metodo para mostrar la distribución de acuerdo al tipo
@@ -149,6 +157,7 @@ public class GaltonBoardService {
                 .orElseThrow(NotFoundException::new);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public GaltonBoard create(final GaltonBoardDTO galtonBoardDTO) {
         GaltonBoard galtonBoard = new GaltonBoard();
         mapToEntity(galtonBoardDTO, galtonBoard);
@@ -183,6 +192,7 @@ public class GaltonBoardService {
         // Asegurarse de que la distribución esté instanciada y guardada antes de asociarla
         if (galtonBoardDTO.getDistribucion() != null) {
             Distribucion distribucion = galtonBoard.getDistribucion() != null ? galtonBoard.getDistribucion() : new Distribucion();
+            distribucion.setId(galtonBoardDTO.getDistribucion().getId());
             distribucion.setDatos(galtonBoardDTO.getDistribucion().getDatos());
             distribucion.setNumBolas(galtonBoardDTO.getDistribucion().getNumBolas());
             distribucion.setNumContenedores(galtonBoardDTO.getDistribucion().getNumContenedores());
@@ -196,9 +206,22 @@ public class GaltonBoardService {
         return galtonBoard;
     }
 
-    public GaltonBoard getEntityById(final Integer id) {
-        return galtonBoardRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("GaltonBoard no encontrado con ID: " + id));
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public GaltonBoard getEntityById(Integer id) {
+        System.out.println("Intentando recuperar GaltonBoard con ID: " + id);
+        Optional<GaltonBoard> optionalGaltonBoard = galtonBoardRepository.findById(id);
+        if (optionalGaltonBoard.isPresent()) {
+            System.out.println("GaltonBoard encontrado: " + optionalGaltonBoard.get());
+            return optionalGaltonBoard.get();
+        } else {
+            System.err.println("GaltonBoard no encontrado con ID: " + id);
+            throw new NotFoundException("GaltonBoard no encontrado con ID: " + id);
+        }
+    }
+
+
+    public void flush() {
+        galtonBoardRepository.flush();
     }
 }
 

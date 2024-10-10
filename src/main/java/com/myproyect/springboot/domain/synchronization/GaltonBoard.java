@@ -13,7 +13,6 @@ import org.hibernate.annotations.GenericGenerator;
 public class GaltonBoard implements Runnable {
 
     @Id
-    @Column(nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 

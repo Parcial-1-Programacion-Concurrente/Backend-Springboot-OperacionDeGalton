@@ -98,15 +98,6 @@ public class MaquinaWorkerService {
         return distribucion;
     }
 
-    // Metodo para agregar un ComponenteWorker y ejecutarlo
-    public void agregarComponenteWorker(ComponenteWorker worker) {
-        // Persistir el ComponenteWorker antes de lanzarlo.
-        componenteWorkerRepository.save(worker);
-        // Añadir el ComponenteWorker al ExecutorService para que sea ejecutado.
-        executorService.submit(worker);
-        System.out.println("ComponenteWorker agregado para el componente de tipo " + worker.getComponente().getTipo());
-    }
-
     // Metodo para ensamblar la máquina una vez que todos los ComponenteWorkers han terminado su trabajo
     public void ensamblarMaquina(MaquinaWorker maquinaWorker) {
         // Verificar si todos los ComponenteWorkers han terminado su trabajo

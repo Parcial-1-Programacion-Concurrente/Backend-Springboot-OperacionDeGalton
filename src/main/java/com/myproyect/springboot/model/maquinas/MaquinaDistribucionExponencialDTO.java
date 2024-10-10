@@ -15,7 +15,5 @@ public class MaquinaDistribucionExponencialDTO extends MaquinaDTO {
     @NotNull
     private String estado;
 
-    private Integer galtonBoardId;
-
 }
 

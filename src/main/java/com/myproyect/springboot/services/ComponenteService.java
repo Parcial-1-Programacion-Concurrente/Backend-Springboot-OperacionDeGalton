@@ -56,6 +56,7 @@ public class ComponenteService {
     }
 
     private Componente mapToEntity(final ComponenteDTO componenteDTO, final Componente componente) {
+        componente.setId(componenteDTO.getId());
         componente.setTipo(componenteDTO.getTipo());
         componente.setValorCalculado(componenteDTO.getValorCalculado());
         return componente;

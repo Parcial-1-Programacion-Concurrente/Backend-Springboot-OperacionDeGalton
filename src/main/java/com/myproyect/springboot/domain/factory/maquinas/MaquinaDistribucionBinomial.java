@@ -18,10 +18,6 @@ public class MaquinaDistribucionBinomial extends Maquina {
     @Column(nullable = false)
     private double probabilidadExito;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "galton_board_id", nullable = false)
-    private GaltonBoard galtonBoard;
-
     @Column(nullable = false)
     private String estado = "APAGADO"; // 'INICIALIZADO', 'EN_SIMULACION', 'FINALIZADA'
 }

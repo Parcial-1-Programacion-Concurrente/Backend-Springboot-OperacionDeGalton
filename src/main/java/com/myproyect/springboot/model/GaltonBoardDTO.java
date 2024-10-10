@@ -11,6 +11,7 @@ import lombok.Setter;
 @Setter
 public class GaltonBoardDTO {
 
+
     private Integer id;
 
     @NotNull
