@@ -33,7 +33,7 @@ public class GaltonBoardService {
         this.galtonBoardRepository = galtonBoardRepository;
     }
 
-    // Metodo para iniciar la simulacion de la caida de bolas
+    // Metodo para iniciar la simulación de la caída de bolas
     public void simularCaidaDeBolas(Integer galtonBoardId) {
         GaltonBoard galtonBoard = galtonBoardRepository.findById(galtonBoardId)
                 .orElseThrow(() -> new NotFoundException("GaltonBoard no encontrado con ID: " + galtonBoardId));
@@ -44,16 +44,16 @@ public class GaltonBoardService {
         // Simulación de la caída de bolas.
         int[] contenedores = new int[galtonBoard.getNumContenedores()];
         Random random = new Random();
-
         for (int i = 0; i < galtonBoard.getNumBolas(); i++) {
             int contenedorSeleccionado = 0;
             for (int j = 0; j < galtonBoard.getNumContenedores() - 1; j++) {
-                // Cada paso tiene una probabilidad del 50% de ir a la derecha.
                 if (random.nextBoolean()) {
                     contenedorSeleccionado++;
                 }
             }
-            contenedores[contenedorSeleccionado]++;
+            if (contenedores[contenedorSeleccionado] < 1000 && contenedores[contenedorSeleccionado] > 0) {
+                contenedores[contenedorSeleccionado]++;
+            }
         }
 
         // Guardar la distribución en la entidad Distribucion.
@@ -78,12 +78,13 @@ public class GaltonBoardService {
         System.out.println("Simulación de caída de bolas finalizada para el GaltonBoard con ID: " + galtonBoardId);
     }
 
+    // Metodo auxiliar para convertir la distribución a un formato de Map<String, Integer>
     private Map<String, Integer> convertirAFormatoDistribucion(int[] contenedores) {
-        Map<String, Integer> datos = new HashMap<>();
+        Map<String, Integer> distribucionMap = new HashMap<>();
         for (int i = 0; i < contenedores.length; i++) {
-            datos.put("Contenedor " + (i + 1), contenedores[i]); // Asegúrate de que cada contenedor tenga un conteo adecuado.
+            distribucionMap.put("Contenedor " + i, contenedores[i]);
         }
-        return datos;
+        return distribucionMap;
     }
 
 

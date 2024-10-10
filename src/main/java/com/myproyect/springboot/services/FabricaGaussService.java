@@ -165,7 +165,7 @@ public class FabricaGaussService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public GaltonBoard crearYGuardarGaltonBoard(int index) {
         GaltonBoard galtonBoard = new GaltonBoard();
-        galtonBoard.setNumBolas(500 + (index * 100));
+        galtonBoard.setNumBolas(300 + (index * 10));
         galtonBoard.setNumContenedores(3);
         galtonBoard.setEstado("INICIALIZADO");
 
