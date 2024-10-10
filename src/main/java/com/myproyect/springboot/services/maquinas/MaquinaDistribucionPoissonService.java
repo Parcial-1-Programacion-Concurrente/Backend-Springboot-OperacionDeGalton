@@ -29,14 +29,18 @@ public class MaquinaDistribucionPoissonService extends MaquinaService {
 
         double lambda = maquina.getLambda();
         Map<String, Integer> distribucion = new HashMap<>();
+        int escala = 10000; // Ajusta la escala según sea necesario.
 
         for (int k = 0; k <= maquina.getMaximoValor(); k++) {
             double probabilidad = (Math.pow(lambda, k) * Math.exp(-lambda)) / factorial(k);
-            distribucion.put("Eventos_" + k, (int) (probabilidad * 100)); // Probabilidad en porcentaje
+            int valorEscalado = (int) Math.round(probabilidad * escala);
+            valorEscalado = Math.max(10, valorEscalado); // Evita valores negativos.
+            distribucion.put("Eventos_" + k, valorEscalado);
         }
 
         return distribucion;
     }
+
 
     private int factorial(int n) {
         if (n == 0) return 1;

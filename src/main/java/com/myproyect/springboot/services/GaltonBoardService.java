@@ -24,6 +24,9 @@ import java.util.stream.Collectors;
 public class GaltonBoardService {
 
     @Autowired
+    private EntityManager entityManager;
+
+    @Autowired
     private DistribucionRepository distribucionRepository;
 
     private final GaltonBoardRepository galtonBoardRepository;
@@ -186,6 +189,7 @@ public class GaltonBoardService {
         return galtonBoardRepository.save(galtonBoard);
     }
 
+
     public void update(final Integer id, final GaltonBoardDTO galtonBoardDTO) {
         GaltonBoard galtonBoard = galtonBoardRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
@@ -206,44 +210,78 @@ public class GaltonBoardService {
     }
 
     public GaltonBoard mapToEntity(final GaltonBoardDTO galtonBoardDTO, final GaltonBoard galtonBoard) {
-        // Asignar propiedades simples
-        galtonBoard.setNumBolas(galtonBoardDTO.getNumBolas());
-        galtonBoard.setNumContenedores(galtonBoardDTO.getNumContenedores());
-        galtonBoard.setEstado(galtonBoardDTO.getEstado());
-
-        // Asegurarse de que la distribución esté instanciada y guardada antes de asociarla
         if (galtonBoardDTO.getDistribucion() != null) {
             Distribucion distribucion = galtonBoard.getDistribucion() != null ? galtonBoard.getDistribucion() : new Distribucion();
-            distribucion.setId(galtonBoardDTO.getDistribucion().getId());
             distribucion.setDatos(galtonBoardDTO.getDistribucion().getDatos());
             distribucion.setNumBolas(galtonBoardDTO.getDistribucion().getNumBolas());
             distribucion.setNumContenedores(galtonBoardDTO.getDistribucion().getNumContenedores());
 
-            // Guardar la distribución antes de asociarla
             distribucion = distribucionRepository.save(distribucion);
-
             galtonBoard.setDistribucion(distribucion);
         }
-
         return galtonBoard;
     }
 
+
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public GaltonBoard getEntityById(Integer id) {
-        System.out.println("Intentando recuperar GaltonBoard con ID: " + id);
-        Optional<GaltonBoard> optionalGaltonBoard = galtonBoardRepository.findById(id);
-        if (optionalGaltonBoard.isPresent()) {
-            System.out.println("GaltonBoard encontrado: " + optionalGaltonBoard.get());
-            return optionalGaltonBoard.get();
-        } else {
-            System.err.println("GaltonBoard no encontrado con ID: " + id);
-            throw new NotFoundException("GaltonBoard no encontrado con ID: " + id);
-        }
+    public GaltonBoard crearYGuardarGaltonBoard(int index) {
+        GaltonBoard galtonBoard = new GaltonBoard();
+        galtonBoard.setNumBolas(10 + (index * 10));
+        galtonBoard.setNumContenedores(3);  // Asegúrate de que este número sea el adecuado
+        galtonBoard.setEstado("INICIALIZADO");
+
+        // Crea solo una distribución por cada GaltonBoard.
+        Distribucion distribucion = new Distribucion();
+        distribucion.setNumBolas(galtonBoard.getNumBolas());
+        distribucion.setNumContenedores(galtonBoard.getNumContenedores());
+        distribucion.setDatos(new HashMap<>());
+        distribucion.setGaltonBoard(galtonBoard);
+
+        galtonBoard.setDistribucion(distribucion);
+
+        // Guardar GaltonBoard y Distribución juntos
+        GaltonBoard savedGaltonBoard = galtonBoardRepository.save(galtonBoard);
+        entityManager.flush();
+
+        System.out.println("GaltonBoard creado y guardado con ID: " + savedGaltonBoard.getId());
+
+        return savedGaltonBoard;
     }
 
 
-    public void flush() {
-        galtonBoardRepository.flush();
+    public void mostrarGaltonBoardCompacto(GaltonBoard galtonBoard) {
+        Distribucion distribucion = galtonBoard.getDistribucion();
+        if (distribucion == null || distribucion.getDatos().isEmpty()) {
+            System.out.println("La distribución está vacía para el GaltonBoard con ID: " + galtonBoard.getId());
+            return;
+        }
+
+        System.out.println("Distribución del GaltonBoard con ID: " + galtonBoard.getId() + ":");
+
+        // Obtener los datos de la distribución
+        Map<String, Integer> datos = distribucion.getDatos();
+
+        // Determinar el valor máximo para normalizar las barras
+        int maxBolas = datos.values().stream().max(Integer::compareTo).orElse(1);
+
+        for (Map.Entry<String, Integer> entry : datos.entrySet()) {
+            String contenedor = entry.getKey();
+            int bolas = entry.getValue();
+
+            // Normalizar la cantidad de bolas para que la longitud de la barra no exceda un límite visual, por ejemplo, 50 caracteres
+            int longitudBarra = (int) ((bolas / (double) maxBolas) * 50);
+
+            // Construir la barra utilizando un carácter visual como "█"
+            String barra = "█".repeat(longitudBarra);
+
+            System.out.printf("%-10s: %-50s (%d)%n", contenedor, barra, bolas);
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public GaltonBoard getEntityById(Integer id) {
+        return galtonBoardRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("GaltonBoard no encontrado con ID: " + id));
     }
 }
 

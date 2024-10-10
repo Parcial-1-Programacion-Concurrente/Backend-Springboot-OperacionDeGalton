@@ -286,17 +286,144 @@ public abstract class MaquinaService {
     }
 
     public void update(final Integer id, final MaquinaDTO maquinaDTO) {
+        // Buscar la máquina existente
         Maquina maquina = maquinaRepository.findById(id)
-                .orElseThrow(NotFoundException::new);
-        mapToEntity(maquinaDTO, maquina);
-        maquinaRepository.save(maquina);
+                .orElseThrow(() -> new NotFoundException("Maquina no encontrada con ID: " + id));
+
+        // Determinar la subclase a actualizar según el tipo especificado en el DTO
+        switch (maquinaDTO.getTipo().toUpperCase()) {
+            case "BINOMIAL":
+                MaquinaDistribucionBinomialDTO binomialDTO = (MaquinaDistribucionBinomialDTO) maquinaDTO;
+                MaquinaDistribucionBinomial maquinaDistribucionBinomial = (MaquinaDistribucionBinomial) maquina;
+                maquinaDistribucionBinomial.setEstado(binomialDTO.getEstado());
+                maquinaDistribucionBinomial.setNumeroComponentesRequeridos(binomialDTO.getNumeroComponentesRequeridos());
+                maquinaDistribucionBinomial.setTipo(binomialDTO.getTipo());
+
+                GaltonBoard galtonBoardBinomial = galtonBoardRepository.findById(binomialDTO.getGaltonBoardId())
+                        .orElseThrow(() -> new NotFoundException("GaltonBoard no encontrado con ID: " + binomialDTO.getGaltonBoardId()));
+                maquinaDistribucionBinomial.setGaltonBoard(galtonBoardBinomial);
+
+                maquinaDistribucionBinomial.setNumEnsayos(binomialDTO.getNumEnsayos());
+                maquinaDistribucionBinomial.setProbabilidadExito(binomialDTO.getProbabilidadExito());
+
+                maquina = maquinaDistribucionBinomial;
+                break;
+
+            case "GEOMETRICA":
+                MaquinaDistribucionGeometricaDTO geometricaDTO = (MaquinaDistribucionGeometricaDTO) maquinaDTO;
+                MaquinaDistribucionGeometrica maquinaDistribucionGeometrica = (MaquinaDistribucionGeometrica) maquina;
+                maquinaDistribucionGeometrica.setEstado(geometricaDTO.getEstado());
+                maquinaDistribucionGeometrica.setNumeroComponentesRequeridos(geometricaDTO.getNumeroComponentesRequeridos());
+                maquinaDistribucionGeometrica.setTipo(geometricaDTO.getTipo());
+
+                GaltonBoard galtonBoardGeometrica = galtonBoardRepository.findById(geometricaDTO.getGaltonBoardId())
+                        .orElseThrow(() -> new NotFoundException("GaltonBoard no encontrado con ID: " + geometricaDTO.getGaltonBoardId()));
+                maquinaDistribucionGeometrica.setGaltonBoard(galtonBoardGeometrica);
+
+                maquinaDistribucionGeometrica.setProbabilidadExito(geometricaDTO.getProbabilidadExito());
+                maquinaDistribucionGeometrica.setMaximoEnsayos(geometricaDTO.getMaximoEnsayos());
+
+                maquina = maquinaDistribucionGeometrica;
+                break;
+
+            case "EXPONENCIAL":
+                MaquinaDistribucionExponencialDTO exponencialDTO = (MaquinaDistribucionExponencialDTO) maquinaDTO;
+                MaquinaDistribucionExponencial maquinaDistribucionExponencial = (MaquinaDistribucionExponencial) maquina;
+                maquinaDistribucionExponencial.setEstado(exponencialDTO.getEstado());
+                maquinaDistribucionExponencial.setNumeroComponentesRequeridos(exponencialDTO.getNumeroComponentesRequeridos());
+                maquinaDistribucionExponencial.setTipo(exponencialDTO.getTipo());
+
+                GaltonBoard galtonBoardExponencial = galtonBoardRepository.findById(exponencialDTO.getGaltonBoardId())
+                        .orElseThrow(() -> new NotFoundException("GaltonBoard no encontrado con ID: " + exponencialDTO.getGaltonBoardId()));
+                maquinaDistribucionExponencial.setGaltonBoard(galtonBoardExponencial);
+
+                maquinaDistribucionExponencial.setLambda(exponencialDTO.getLambda());
+                maquinaDistribucionExponencial.setMaximoValor(exponencialDTO.getMaximoValor());
+
+                maquina = maquinaDistribucionExponencial;
+                break;
+
+            case "NORMAL":
+                MaquinaDistribucionNormalDTO normalDTO = (MaquinaDistribucionNormalDTO) maquinaDTO;
+                MaquinaDistribucionNormal maquinaDistribucionNormal = (MaquinaDistribucionNormal) maquina;
+                maquinaDistribucionNormal.setEstado(normalDTO.getEstado());
+                maquinaDistribucionNormal.setNumeroComponentesRequeridos(normalDTO.getNumeroComponentesRequeridos());
+                maquinaDistribucionNormal.setTipo(normalDTO.getTipo());
+
+                GaltonBoard galtonBoardNormal = galtonBoardRepository.findById(normalDTO.getGaltonBoardId())
+                        .orElseThrow(() -> new NotFoundException("GaltonBoard no encontrado con ID: " + normalDTO.getGaltonBoardId()));
+                maquinaDistribucionNormal.setGaltonBoard(galtonBoardNormal);
+
+                maquinaDistribucionNormal.setMedia(normalDTO.getMedia());
+                maquinaDistribucionNormal.setDesviacionEstandar(normalDTO.getDesviacionEstandar());
+                maquinaDistribucionNormal.setMaximoValor(normalDTO.getMaximoValor());
+
+                maquina = maquinaDistribucionNormal;
+                break;
+
+            case "UNIFORME":
+                MaquinaDistribucionUniformeDTO uniformeDTO = (MaquinaDistribucionUniformeDTO) maquinaDTO;
+                MaquinaDistribucionUniforme maquinaDistribucionUniforme = (MaquinaDistribucionUniforme) maquina;
+                maquinaDistribucionUniforme.setEstado(uniformeDTO.getEstado());
+                maquinaDistribucionUniforme.setNumeroComponentesRequeridos(uniformeDTO.getNumeroComponentesRequeridos());
+                maquinaDistribucionUniforme.setTipo(uniformeDTO.getTipo());
+
+                GaltonBoard galtonBoardUniforme = galtonBoardRepository.findById(uniformeDTO.getGaltonBoardId())
+                        .orElseThrow(() -> new NotFoundException("GaltonBoard no encontrado con ID: " + uniformeDTO.getGaltonBoardId()));
+                maquinaDistribucionUniforme.setGaltonBoard(galtonBoardUniforme);
+
+                maquinaDistribucionUniforme.setNumValores(uniformeDTO.getNumValores());
+
+                maquina = maquinaDistribucionUniforme;
+                break;
+
+            case "CUSTOM":
+                MaquinaDistribucionCustomDTO customDTO = (MaquinaDistribucionCustomDTO) maquinaDTO;
+                MaquinaDistribucionCustom maquinaDistribucionCustom = (MaquinaDistribucionCustom) maquina;
+                maquinaDistribucionCustom.setEstado(customDTO.getEstado());
+                maquinaDistribucionCustom.setNumeroComponentesRequeridos(customDTO.getNumeroComponentesRequeridos());
+                maquinaDistribucionCustom.setTipo(customDTO.getTipo());
+
+                GaltonBoard galtonBoardCustom = galtonBoardRepository.findById(customDTO.getGaltonBoardId())
+                        .orElseThrow(() -> new NotFoundException("GaltonBoard no encontrado con ID: " + customDTO.getGaltonBoardId()));
+                maquinaDistribucionCustom.setGaltonBoard(galtonBoardCustom);
+
+                maquinaDistribucionCustom.setProbabilidadesPersonalizadas(customDTO.getProbabilidadesPersonalizadas());
+
+                maquina = maquinaDistribucionCustom;
+                break;
+
+            case "POISSON":
+                MaquinaDistribucionPoissonDTO poissonDTO = (MaquinaDistribucionPoissonDTO) maquinaDTO;
+                MaquinaDistribucionPoisson maquinaDistribucionPoisson = (MaquinaDistribucionPoisson) maquina;
+                maquinaDistribucionPoisson.setEstado(poissonDTO.getEstado());
+                maquinaDistribucionPoisson.setNumeroComponentesRequeridos(poissonDTO.getNumeroComponentesRequeridos());
+                maquinaDistribucionPoisson.setTipo(poissonDTO.getTipo());
+
+                GaltonBoard galtonBoardPoisson = galtonBoardRepository.findById(poissonDTO.getGaltonBoardId())
+                        .orElseThrow(() -> new NotFoundException("GaltonBoard no encontrado con ID: " + poissonDTO.getGaltonBoardId()));
+                maquinaDistribucionPoisson.setGaltonBoard(galtonBoardPoisson);
+
+                maquinaDistribucionPoisson.setLambda(poissonDTO.getLambda());
+                maquinaDistribucionPoisson.setMaximoValor(poissonDTO.getMaximoValor());
+
+                maquina = maquinaDistribucionPoisson;
+                break;
+
+            default:
+                throw new IllegalArgumentException("Tipo de máquina desconocido: " + maquinaDTO.getTipo());
+        }
+
+        // Guardar la máquina usando el repositorio específico
+        saveMaquinaByType(maquina);
     }
+
 
     public void delete(final Integer id) {
         maquinaRepository.deleteById(id);
     }
 
-    private MaquinaDTO mapToDTO(final Maquina maquina, final MaquinaDTO maquinaDTO) {
+    public MaquinaDTO mapToDTO(final Maquina maquina, final MaquinaDTO maquinaDTO) {
         // Mapear los atributos comunes de Maquina a MaquinaDTO
         maquinaDTO.setId(maquina.getId());
         maquinaDTO.setTipo(maquina.getTipo());
@@ -525,8 +652,6 @@ public abstract class MaquinaService {
 
         return maquina;
     }
-
-
     public abstract Map<String, Integer> calcularDistribucion(Integer id);
 }
 
