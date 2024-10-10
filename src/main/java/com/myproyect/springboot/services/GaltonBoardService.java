@@ -51,9 +51,8 @@ public class GaltonBoardService {
                     contenedorSeleccionado++;
                 }
             }
-            if (contenedores[contenedorSeleccionado] < 1000 && contenedores[contenedorSeleccionado] > 0) {
                 contenedores[contenedorSeleccionado]++;
-            }
+
         }
 
         // Guardar la distribución en la entidad Distribucion.
