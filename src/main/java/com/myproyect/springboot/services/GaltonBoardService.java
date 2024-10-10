@@ -88,30 +88,52 @@ public class GaltonBoardService {
 
 
     // Metodo para actualizar la distribución de un GaltonBoard con una DistribucionDTO
+    @Transactional
     public void actualizarDistribucion(GaltonBoard galtonBoard, DistribucionDTO distribucionDTO) {
 
         System.out.println("Actualizando distribución para GaltonBoard con ID: " + galtonBoard.getId());
 
-        // Asegurarse de que la distribución no sea null
-        if (galtonBoard.getDistribucion() == null) {
-            galtonBoard.setDistribucion(new Distribucion());
+        // Verificar si el GaltonBoard está persistido
+        if (galtonBoard.getId() == null) {
+            galtonBoard = galtonBoardRepository.save(galtonBoard);
+            System.out.println("GaltonBoard guardado con ID: " + galtonBoard.getId());
+        } else {
+            // Asignar el ID a una variable final
+            final Integer galtonBoardId = galtonBoard.getId();
+
+            // Recargar el GaltonBoard desde la base de datos
+            galtonBoard = galtonBoardRepository.findById(galtonBoardId)
+                    .orElseThrow(() -> new NotFoundException("GaltonBoard no encontrado con ID: " + galtonBoardId));
         }
+
         // Obtener la instancia de la distribución
         Distribucion distribucion = galtonBoard.getDistribucion();
 
-        // Asegurarse de que los datos no sean null antes de asignarlos
+        if (distribucion == null) {
+            // Crear nueva Distribucion y asociarla al GaltonBoard
+            distribucion = new Distribucion();
+            distribucion.setGaltonBoard(galtonBoard);
+            galtonBoard.setDistribucion(distribucion);
+        } else {
+            // Asignar el ID a una variable final
+            final Integer distribucionId = distribucion.getId();
+
+            // Recargar la Distribucion desde la base de datos
+            distribucion = distribucionRepository.findById(distribucionId)
+                    .orElseThrow(() -> new NotFoundException("Distribucion no encontrada con ID: " + distribucionId));
+        }
+
+        // Actualizar los datos de la distribución
         if (distribucionDTO.getDatos() != null) {
             distribucion.setDatos(distribucionDTO.getDatos());
         }
         distribucion.setNumBolas(distribucionDTO.getNumBolas());
         distribucion.setNumContenedores(distribucionDTO.getNumContenedores());
 
-        // Guardar la distribución antes de guardar el GaltonBoard
+        // Guardar la distribución
         distribucion = distribucionRepository.save(distribucion);
-        galtonBoard.setDistribucion(distribucion);
 
         System.out.println("Distribución actualizada para GaltonBoard con ID: " + galtonBoard.getId());
-
     }
 
     // Metodo para mostrar la distribución de acuerdo al tipo

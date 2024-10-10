@@ -3,14 +3,14 @@ package com.myproyect.springboot.services;
 import com.myproyect.springboot.domain.concurrency.ComponenteWorker;
 import com.myproyect.springboot.domain.concurrency.MaquinaWorker;
 import com.myproyect.springboot.domain.concurrency.Componente;
+import com.myproyect.springboot.domain.distribution.Distribucion;
 import com.myproyect.springboot.domain.factory.maquinas.Maquina;
+import com.myproyect.springboot.domain.factory.maquinas.MaquinaDistribucionNormal;
 import com.myproyect.springboot.domain.synchronization.GaltonBoard;
 import com.myproyect.springboot.model.MaquinaWorkerDTO;
-import com.myproyect.springboot.repos.ComponenteRepository;
-import com.myproyect.springboot.repos.ComponenteWorkerRepository;
-import com.myproyect.springboot.repos.GaltonBoardRepository;
-import com.myproyect.springboot.repos.MaquinaWorkerRepository;
-import com.myproyect.springboot.repos.maquinasRepos.MaquinaRepository;
+import com.myproyect.springboot.repos.*;
+import com.myproyect.springboot.repos.maquinasRepos.*;
+import com.myproyect.springboot.services.maquinas.*;
 import com.myproyect.springboot.util.NotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +18,38 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 @Service
 public class MaquinaWorkerService {
+
+    @Autowired
+    private MaquinaDistribucionBinomialService maquinaDistribucionBinomialService;
+
+    @Autowired
+    private MaquinaDistribucionGeometricaService maquinaDistribucionGeometricaService;
+
+    @Autowired
+    private MaquinaDistribucionExponencialService maquinaDistribucionExponencialService;
+
+    @Autowired
+    private MaquinaDistribucionNormalService maquinaDistribucionNormalService;
+
+    @Autowired
+    private MaquinaDistribucionUniformeService maquinaDistribucionUniformeService;
+
+    @Autowired
+    private MaquinaDistribucionCustomService maquinaDistribucionCustomService;
+
+    @Autowired
+    private MaquinaDistribucionPoissonService maquinaDistribucionPoissonService;
+
+    @Autowired
+    private DistribucionRepository distribucionRepository;
 
     @Autowired
     private MaquinaRepository maquinaRepository;
@@ -37,6 +63,9 @@ public class MaquinaWorkerService {
     private final MaquinaWorkerRepository maquinaWorkerRepository;
     private final ComponenteWorkerRepository componenteWorkerRepository;
 
+    // Mapa concurrente para almacenar MaquinaWorkers por ID de Máquina
+    private ConcurrentMap<Integer, MaquinaWorker> maquinaWorkersMap = new ConcurrentHashMap<>();
+
     @Autowired
     public MaquinaWorkerService(final MaquinaWorkerRepository maquinaWorkerRepository,
                                 final ComponenteWorkerRepository componenteWorkerRepository) {
@@ -47,7 +76,6 @@ public class MaquinaWorkerService {
     @Transactional
     public void iniciarTrabajo(Maquina maquina, GaltonBoard galtonBoard) {
         try {
-
             // Verificar si el GaltonBoard está persistido
             if (galtonBoard.getId() == null) {
                 galtonBoard = galtonBoardRepository.save(galtonBoard);
@@ -56,10 +84,18 @@ public class MaquinaWorkerService {
                 System.out.println("GaltonBoard ya está persistido con ID: " + galtonBoard.getId());
             }
 
+            // Verificar e inicializar la distribución
+            if (galtonBoard.getDistribucion() == null) {
+                Distribucion distribucion = new Distribucion();
+                distribucion.setGaltonBoard(galtonBoard);
+                distribucion = distribucionRepository.save(distribucion);
+                galtonBoard.setDistribucion(distribucion);
+                galtonBoard = galtonBoardRepository.save(galtonBoard);
+                System.out.println("Distribución inicializada para el GaltonBoard con ID: " + galtonBoard.getId());
+            }
+
             // Asignar el GaltonBoard a la Maquina antes de guardarla
             maquina.setGaltonBoard(galtonBoard);
-
-            // Guardar la máquina antes de asociarla a un MaquinaWorker
             maquina = maquinaRepository.save(maquina);
 
             if (maquina.getId() == null) {
@@ -67,79 +103,70 @@ public class MaquinaWorkerService {
                 return;
             }
 
-
             // Crear una nueva instancia de MaquinaWorker
             MaquinaWorker maquinaWorker = new MaquinaWorker();
             maquinaWorker.setMaquina(maquina);
-
-            int numComponentes = maquina.getNumeroComponentesRequeridos();
-
-            if (numComponentes <= 0) {
-                throw new IllegalArgumentException("El número de componentes requeridos debe ser mayor que cero. Valor actual: " + numComponentes);
-            }
-
-            System.out.println("Número de componentes requeridos para la máquina de tipo " + maquina.getTipo() + ": " + numComponentes);
-
-            maquinaWorker.setExecutor(Executors.newFixedThreadPool(numComponentes));
-
-            // Inicializar la lista de ComponenteWorkers
+            maquinaWorker.setExecutor(Executors.newFixedThreadPool(maquina.getNumeroComponentesRequeridos()));
             maquinaWorker.setComponenteWorkers(new ArrayList<>());
-
-            // Guardar el MaquinaWorker antes de asignarle los ComponenteWorkers
             maquinaWorker = maquinaWorkerRepository.save(maquinaWorker);
 
+            maquinaWorkersMap.put(maquina.getId(), maquinaWorker);
 
-            // Crear y asignar los ComponenteWorkers
-            for (int i = 0; i < numComponentes; i++) {
+            Map<String, Integer> distribucion = calcularDistribucion(maquinaWorker);
+            galtonBoard.getDistribucion().setDatos(distribucion);
+            galtonBoardRepository.save(galtonBoard);
+
+            for (int i = 0; i < maquina.getNumeroComponentesRequeridos(); i++) {
                 ComponenteWorker worker = new ComponenteWorker();
-
-                // Crear un nuevo componente para cada worker
                 Componente componente = new Componente();
-                componente.setTipo("COMPONENTE_TIPO_" + (i + 1)); // Asignar un tipo único
-
-                // Asignar la máquina al componente
+                componente.setTipo("COMPONENTE_TIPO_" + (i + 1));
                 componente.setMaquina(maquina);
-
-                // Guardar el componente antes de asociarlo
                 componente = componenteRepository.save(componente);
 
-                // Asigna el componente al worker
                 worker.setComponente(componente);
-
-                // Asignar la máquina worker
                 worker.setMaquinaWorker(maquinaWorker);
-
                 worker.setGaltonBoard(galtonBoard);
-
-                // Agregar el worker a la lista de componentes
+                componenteWorkerRepository.save(worker);
                 maquinaWorker.getComponenteWorkers().add(worker);
             }
 
-            // Guardar el MaquinaWorker en la base de datos
-            maquinaWorker = maquinaWorkerRepository.save(maquinaWorker);
-
-            // Ejecutar el MaquinaWorker en un nuevo hilo
+            maquinaWorkerRepository.save(maquinaWorker);
             new Thread(maquinaWorker).start();
-
             System.out.println("Trabajo de MaquinaWorker iniciado para la máquina de tipo: " + maquina.getTipo());
         } catch (Exception e) {
-            System.out.println("Error al iniciar el trabajo de la máquina de tipo " + maquina.getTipo() + ": " + e.getMessage());
+            System.err.println("Error al iniciar el trabajo de la máquina de tipo " + maquina.getTipo() + ": " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-
-    // Metodo para calcular la distribución de los componentes de la máquina
     public Map<String, Integer> calcularDistribucion(MaquinaWorker maquinaWorker) {
         Maquina maquina = maquinaWorker.getMaquina();
-        Map<String, Integer> distribucion = new HashMap<>();
+        Map<String, Integer> distribucion;
 
-        // Simulación del cálculo de distribución basado en los valores de los componentes.
-        if (maquina.getComponentes() != null) {
-            maquina.getComponentes().forEach(componente -> {
-                String tipo = componente.getTipo();
-                distribucion.put(tipo, distribucion.getOrDefault(tipo, 0) + 1);
-            });
+        switch (maquina.getTipo().toUpperCase()) {
+            case "BINOMIAL":
+                distribucion = maquinaDistribucionBinomialService.calcularDistribucion(maquina.getId());
+                break;
+            case "GEOMETRICA":
+                distribucion = maquinaDistribucionGeometricaService.calcularDistribucion(maquina.getId());
+                break;
+            case "EXPONENCIAL":
+                distribucion = maquinaDistribucionExponencialService.calcularDistribucion(maquina.getId());
+                break;
+            case "NORMAL":
+                distribucion = maquinaDistribucionNormalService.calcularDistribucion(maquina.getId());
+                break;
+            case "UNIFORME":
+                distribucion = maquinaDistribucionUniformeService.calcularDistribucion(maquina.getId());
+                break;
+            case "CUSTOM":
+                distribucion = maquinaDistribucionCustomService.calcularDistribucion(maquina.getId());
+                break;
+            case "POISSON":
+                distribucion = maquinaDistribucionPoissonService.calcularDistribucion(maquina.getId());
+                break;
+            default:
+                throw new IllegalArgumentException("Tipo de distribución no soportado: " + maquina.getTipo());
         }
 
         System.out.println("Distribución calculada para la máquina de tipo " + maquina.getTipo() + ": " + distribucion);
@@ -212,7 +239,8 @@ public class MaquinaWorkerService {
     }
 
     public MaquinaWorker obtenerMaquinaWorker(Integer maquinaId) {
-        return maquinaWorkerRepository.findById(maquinaId)
+        // Obtener el MaquinaWorker desde el mapa concurrente
+        return Optional.ofNullable(maquinaWorkersMap.get(maquinaId))
                 .orElseThrow(() -> new NotFoundException("No se encontró MaquinaWorker para la máquina ID: " + maquinaId));
     }
 

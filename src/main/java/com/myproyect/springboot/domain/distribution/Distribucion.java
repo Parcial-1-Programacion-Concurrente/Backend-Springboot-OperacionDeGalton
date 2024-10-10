@@ -20,8 +20,8 @@ public class Distribucion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ElementCollection
-    private Map<String, Integer> datos;
+    @ElementCollection(fetch = FetchType.EAGER)
+    private Map<String, Integer> datos = new HashMap<>();
 
     @Column(nullable = false)
     private int numBolas;

@@ -49,7 +49,6 @@ public class DistribucionService {
     }
 
     private DistribucionDTO mapToDTO(final Distribucion distribucion, final DistribucionDTO distribucionDTO) {
-        distribucionDTO.setId(distribucion.getId());
         distribucionDTO.setDatos(distribucion.getDatos());
         distribucionDTO.setNumBolas(distribucion.getNumBolas());
         distribucionDTO.setNumContenedores(distribucion.getNumContenedores());

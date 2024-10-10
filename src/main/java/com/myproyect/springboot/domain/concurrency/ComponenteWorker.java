@@ -8,6 +8,7 @@ import com.myproyect.springboot.domain.concurrency.Componente;
 import com.myproyect.springboot.domain.synchronization.GaltonBoard;
 import org.hibernate.annotations.GenericGenerator;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.logging.Logger;
@@ -42,14 +43,14 @@ public class ComponenteWorker implements Runnable {
     @Transient
     private boolean trabajoCompletado = false;
 
+
+
+
+
     @Override
     public void run() {
         try {
             System.out.println("Iniciando trabajo para el ComponenteWorker con tipo: " + componente.getTipo());
-            if (galtonBoard == null || galtonBoard.getDistribucion() == null) {
-                System.err.println("Error durante el cálculo del valor: El GaltonBoard y su Distribución deben estar configurados.");
-                return;
-            }
 
             // Realiza el cálculo del valor.
             double valorCalculado = calcularValor();
@@ -97,9 +98,10 @@ public class ComponenteWorker implements Runnable {
             String contenedor = entry.getKey();
             int bolasEnContenedor = entry.getValue();
 
-            // Manejar el caso de nombre de contenedor inválido
+            // Manejar el caso de nombres de contenedores variados
             try {
-                int indiceContenedor = Integer.parseInt(contenedor.replace("Contenedor ", ""));
+                // Extraer el número de manera flexible para contenedores con nombres diferentes
+                int indiceContenedor = extraerIndiceContenedor(contenedor);
                 System.out.println("Índice del contenedor: " + indiceContenedor + ", Bolas en contenedor: " + bolasEnContenedor);
 
                 // Calcula el valor ponderado basado en el índice del contenedor.
@@ -112,6 +114,17 @@ public class ComponenteWorker implements Runnable {
         System.out.println("Valor calculado para el componente: " + valorCalculado);
         return valorCalculado;
     }
+
+    // Metodo auxiliar para extraer el índice del contenedor de manera más robusta
+    private int extraerIndiceContenedor(String contenedor) {
+        // Usar una expresión regular para encontrar números en el nombre del contenedor
+        String indice = contenedor.replaceAll("[^0-9]", "");
+        if (indice.isEmpty()) {
+            throw new NumberFormatException("No se encontró un índice numérico en el contenedor: " + contenedor);
+        }
+        return Integer.parseInt(indice);
+    }
+
 }
 
 

@@ -56,7 +56,6 @@ public class FabricaGaussService {
         semaphore.drainPermits(); // Elimina todos los permisos, haciendo que los hilos se detengan
     }
 
-    // Metodo para iniciar la simulación de la fábrica
     public void iniciarProduccion() {
         ExecutorService executorService = Executors.newFixedThreadPool(NUMBER_OF_MACHINES);
         List<Future<?>> futures = new ArrayList<>();
@@ -139,7 +138,8 @@ public class FabricaGaussService {
         }
     }
 
-    // Método auxiliar para obtener DistribucionDTO
+
+    // Metodo auxiliar para obtener DistribucionDTO
     private DistribucionDTO obtenerDistribucionDTO(GaltonBoard galtonBoard) {
         DistribucionDTO distribucionDTO = new DistribucionDTO();
         Distribucion distribucionActual = galtonBoard.getDistribucion();

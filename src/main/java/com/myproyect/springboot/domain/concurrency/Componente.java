@@ -31,8 +31,5 @@ public class Componente {
     @ManyToOne(optional = false)
     @JoinColumn(name = "maquina_id", nullable = false)
     private Maquina maquina;
-
-    public Componente() {
-    }
 }
 
