@@ -475,5 +475,14 @@ public abstract class MaquinaService {
     }
 
     public abstract Map<String, Integer> calcularDistribucion(Integer id);
+
+    public String obtenerEstadoMaquina(Integer maquinaId) {
+        return maquinaRepository.findById(maquinaId)
+                .map(Maquina::getEstado)
+                .orElseThrow(() -> new NotFoundException("Máquina no encontrada con ID: " + maquinaId));
+    }
+
 }
+
+
 

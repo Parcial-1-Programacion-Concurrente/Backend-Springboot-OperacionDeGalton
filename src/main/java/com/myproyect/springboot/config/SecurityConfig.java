@@ -19,7 +19,13 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/**").permitAll()
+                        .requestMatchers("/").permitAll()
+                        .requestMatchers("/api/fabrica-gaus/").permitAll()
+                        .requestMatchers("/api/galton-board/").permitAll()
+                        .requestMatchers("/api/distribucion/").permitAll()
+                        .requestMatchers("/api/fabrica-gaus").permitAll()
+                        .requestMatchers("/api/galton-board").permitAll()
+                        .requestMatchers("/api/distribucion").permitAll()
                         .anyRequest().authenticated()
                 )
                 .cors(withDefaults()) // CORS
