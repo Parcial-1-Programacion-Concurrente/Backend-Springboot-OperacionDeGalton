@@ -24,14 +24,14 @@ public class MaquinaDistribucionUniformeService extends MaquinaService {
 
     @Override
     public Map<String, Integer> calcularDistribucion(Integer id) {
-        MaquinaDistribucionUniforme maquina = (MaquinaDistribucionUniforme) maquinaDistribucionUniformeRepository.findById(id)
+        MaquinaDistribucionUniforme maquina = maquinaDistribucionUniformeRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
 
         int n = maquina.getNumValores();
         Map<String, Integer> distribucion = new HashMap<>();
 
         for (int i = 1; i <= n; i++) {
-            distribucion.put("Valor_" + i, 100 / n); // Probabilidad uniforme
+            distribucion.put("Valor_" + i, 100 / n);
         }
 
         return distribucion;

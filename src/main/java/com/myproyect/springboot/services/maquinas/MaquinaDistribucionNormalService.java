@@ -27,32 +27,40 @@ public class MaquinaDistribucionNormalService extends MaquinaService {
 
     @Override
     public Map<String, Integer> calcularDistribucion(Integer id) {
-        MaquinaDistribucionNormal maquina = (MaquinaDistribucionNormal) maquinaDistribucionNormalRepository.findById(id)
+        MaquinaDistribucionNormal maquina = maquinaDistribucionNormalRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
 
         double media = maquina.getMedia();
         double desviacion = maquina.getDesviacionEstandar();
         int maxValue = maquina.getMaximoValor();
+        int numSamples = 10000; // Ajustar para mayor precisión
         Map<String, Integer> distribucion = new HashMap<>();
-        int escala = 10000; // Ajusta la escala según sea necesario.
-        int incrementoMinimo = 1; // Asegura que los valores sean siempre distintos.
+        Random random = new Random();
 
+        // Inicializar el mapa con todos los posibles valores.
         for (int x = -maxValue; x <= maxValue; x++) {
-            double probabilidad = (1 / (desviacion * Math.sqrt(2 * Math.PI))) *
-                    Math.exp(-Math.pow(x - media, 2) / (2 * Math.pow(desviacion, 2)));
-            int valorEscalado = (int) Math.round(probabilidad * escala) + incrementoMinimo;
+            distribucion.put("Valor_" + x, 0);
+        }
 
-            // Aumenta el valor mínimo para la siguiente iteración
-            incrementoMinimo++;
+        // Generar valores usando la distribución normal y contar las ocurrencias.
+        for (int i = 0; i < numSamples; i++) {
+            // Generar un valor siguiendo la distribución normal.
+            double valor = media + desviacion * random.nextGaussian();
 
-            // Asegurar que no haya valores negativos ni iguales a cero.
-            valorEscalado = Math.max(1, valorEscalado);
+            // Redondear el valor para asignarlo a un contenedor.
+            int contenedor = (int) Math.round(valor);
 
-            distribucion.put("Valor_" + x, valorEscalado);
+            // Asegurarse de que el valor esté dentro del rango [-maxValue, maxValue].
+            if (contenedor >= -maxValue && contenedor <= maxValue) {
+                String key = "Valor_" + contenedor;
+                distribucion.put(key, distribucion.getOrDefault(key, 0) + 1);
+            }
         }
 
         return distribucion;
     }
+
 }
+
 
 

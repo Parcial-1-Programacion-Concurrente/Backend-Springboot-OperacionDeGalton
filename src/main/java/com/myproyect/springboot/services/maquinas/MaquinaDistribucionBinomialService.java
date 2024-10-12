@@ -24,16 +24,16 @@ public class MaquinaDistribucionBinomialService extends MaquinaService {
 
     @Override
     public Map<String, Integer> calcularDistribucion(Integer id) {
-        MaquinaDistribucionBinomial maquina = (MaquinaDistribucionBinomial) maquinaDistribucionBinomialRepository.findById(id)
+        MaquinaDistribucionBinomial maquina = maquinaDistribucionBinomialRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
 
-        int n = maquina.getNumEnsayos(); // Número de ensayos
-        double p = maquina.getProbabilidadExito(); // Probabilidad de éxito
+        int n = maquina.getNumEnsayos();
+        double p = maquina.getProbabilidadExito();
         Map<String, Integer> distribucion = new HashMap<>();
 
         for (int k = 0; k <= n; k++) {
             double probabilidad = calcularBinomial(n, k, p);
-            distribucion.put("Éxitos_" + k, (int) (probabilidad * 100)); // Probabilidad en porcentaje
+            distribucion.put("Éxitos_" + k, (int) (probabilidad * 100));
         }
 
         return distribucion;
@@ -48,4 +48,5 @@ public class MaquinaDistribucionBinomialService extends MaquinaService {
         return combinar(n - 1, k - 1) + combinar(n - 1, k);
     }
 }
+
 

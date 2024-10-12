@@ -24,16 +24,16 @@ public class MaquinaDistribucionExponencialService extends MaquinaService {
 
     @Override
     public Map<String, Integer> calcularDistribucion(Integer id) {
-        MaquinaDistribucionExponencial maquina = (MaquinaDistribucionExponencial) maquinaDistribucionExponencialRepository.findById(id)
+        MaquinaDistribucionExponencial maquina = maquinaDistribucionExponencialRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
 
-        double lambda = maquina.getLambda(); // Tasa de eventos (lambda)
+        double lambda = maquina.getLambda();
         int maxValue = maquina.getMaximoValor();
         Map<String, Integer> distribucion = new HashMap<>();
 
         for (int x = 0; x <= maxValue; x++) {
             double probabilidad = lambda * Math.exp(-lambda * x);
-            distribucion.put("Valor_" + x, (int) (probabilidad * 100)); // Convertir a porcentaje
+            distribucion.put("Valor_" + x, (int) (probabilidad * 100));
         }
 
         return distribucion;

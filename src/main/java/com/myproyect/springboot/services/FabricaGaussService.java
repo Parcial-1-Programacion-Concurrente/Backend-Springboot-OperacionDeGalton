@@ -56,6 +56,7 @@ public class FabricaGaussService {
         semaphore.drainPermits(); // Elimina todos los permisos, haciendo que los hilos se detengan
     }
 
+    // Método para iniciar la producción de las máquinas.
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void iniciarProduccion() {
         ExecutorService executorService = Executors.newFixedThreadPool(NUMBER_OF_MACHINES);
@@ -63,7 +64,7 @@ public class FabricaGaussService {
 
         Map<Integer, Integer> indexToGaltonBoardId = new ConcurrentHashMap<>();
 
-        // Crear todos los GaltonBoards antes de iniciar la producción de máquinas
+        // Crear todos los GaltonBoards antes de iniciar la producción de máquinas.
         for (int i = 0; i < NUMBER_OF_MACHINES; i++) {
             GaltonBoard galtonBoard = galtonBoardService.crearYGuardarGaltonBoard(i);
 
@@ -77,19 +78,19 @@ public class FabricaGaussService {
 
         System.out.println("Contenido de indexToGaltonBoardId: " + indexToGaltonBoardId);
 
-        // Iniciar la producción de las máquinas
+        // Iniciar la producción de las máquinas.
         for (int i = 0; i < NUMBER_OF_MACHINES; i++) {
             final int index = i;
             final Integer galtonBoardId = indexToGaltonBoardId.get(index);
 
             Future<?> future = executorService.submit(() -> {
                 try {
-                    // Recuperar el GaltonBoard
+                    // Recuperar el GaltonBoard.
                     System.out.println("Máquina " + index + " intentando recuperar GaltonBoard con ID: " + galtonBoardId);
                     GaltonBoard galtonBoard = galtonBoardService.getEntityById(galtonBoardId);
                     System.out.println("GaltonBoard recuperado con ID: " + galtonBoard.getId());
 
-                    // Crear la máquina usando el DTO
+                    // Crear la máquina usando el DTO.
                     MaquinaDTO maquinaDTO = createMaquinaDTO(index, galtonBoardId);
                     Integer maquinaId = maquinaService.create(maquinaDTO);
 
@@ -97,31 +98,36 @@ public class FabricaGaussService {
                         throw new IllegalStateException("El ID de la máquina no debe ser nulo después de crear.");
                     }
 
-                    // Recuperar la máquina desde la base de datos
+                    // Recuperar la máquina desde la base de datos.
                     Maquina maquina = getEntityById(maquinaId);
 
-                    // Iniciar el trabajo de la máquina
+                    // Iniciar el trabajo de la máquina.
                     maquinaWorkerService.iniciarTrabajo(maquina, galtonBoard);
 
-                    // Simular la caída de bolas y actualizar la distribución
+                    // Simular la caída de bolas y actualizar la distribución.
                     galtonBoardService.simularCaidaDeBolas(galtonBoard.getId());
 
-                    // Actualizar la distribución en el GaltonBoard
+                    // Obtener los datos de la distribución actual.
                     DistribucionDTO distribucionDTO = obtenerDistribucionDTO(galtonBoard);
-                    galtonBoardService.actualizarDistribucion(galtonBoard, distribucionDTO);
+
+                    // Convertir los datos de DistribucionDTO a un Map<String, Integer>.
+                    Map<String, Integer> datosDistribucion = distribucionDTO.getDatos();
+
+                    // Actualizar la distribución en el GaltonBoard usando el Map de datos.
+                    galtonBoardService.actualizarDistribucion(galtonBoard, datosDistribucion);
                     System.out.println("Distribución actualizada para el GaltonBoard con ID: " + galtonBoard.getId());
 
-                    // Ensamblar la máquina verificando si los componentes han terminado
+                    // Ensamblar la máquina verificando si los componentes han terminado.
                     MaquinaWorker maquinaWorker = maquinaWorkerService.obtenerMaquinaWorker(maquina.getId());
                     maquinaWorkerService.ensamblarMaquina(maquinaWorker);
 
-                    // Actualizar el estado de la máquina a "FINALIZADA"
+                    // Actualizar el estado de la máquina a "FINALIZADA".
                     maquina.setEstado("FINALIZADA");
 
-                    // Crear el DTO específico según el tipo de máquina
+                    // Crear el DTO específico según el tipo de máquina.
                     MaquinaDTO maquinaDTOActualizado = crearMaquinaDTOActualizado(maquina);
 
-                    // Llamar al metodo update con el ID de la máquina y el DTO específico
+                    // Llamar al método update con el ID de la máquina y el DTO específico.
                     maquinaService.update(maquina.getId(), maquinaDTOActualizado);
 
                     System.out.println("Máquina " + index + " marcada como FINALIZADA.");
@@ -134,10 +140,10 @@ public class FabricaGaussService {
             futures.add(future);
         }
 
-        // Apagar el executor una vez se han enviado todas las tareas
+        // Apagar el executor una vez se han enviado todas las tareas.
         executorService.shutdown();
         try {
-            // Esperar hasta que todas las tareas terminen
+            // Esperar hasta que todas las tareas terminen.
             boolean terminated = executorService.awaitTermination(20, TimeUnit.MINUTES);
 
             if (!terminated) {
@@ -145,9 +151,6 @@ public class FabricaGaussService {
                 executorService.shutdownNow();
             } else {
                 System.out.println("Todas las tareas de producción completadas.");
-
-                // Mostrar las distribuciones de todos los GaltonBoards de manera compacta
-                mostrarDistribucionesDeGaltonBoards(indexToGaltonBoardId);
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -155,13 +158,6 @@ public class FabricaGaussService {
         }
     }
 
-    private void mostrarDistribucionesDeGaltonBoards(Map<Integer, Integer> indexToGaltonBoardId) {
-        System.out.println("Mostrando todas las distribuciones de los GaltonBoards:");
-        for (Integer galtonBoardId : indexToGaltonBoardId.values()) {
-            GaltonBoard galtonBoard = galtonBoardService.getEntityById(galtonBoardId);
-            galtonBoardService.mostrarGaltonBoardCompacto(galtonBoard);
-        }
-    }
 
     private MaquinaDTO crearMaquinaDTOActualizado(Maquina maquina) {
         // Aquí crear y retornar el DTO específico basado en el tipo de la máquina.
@@ -324,6 +320,7 @@ public class FabricaGaussService {
         }
         return maquinaDTO;
     }
+
 
     // Métodos CRUD para la gestión de la fábrica.
     public List<FabricaGaussDTO> findAll() {
