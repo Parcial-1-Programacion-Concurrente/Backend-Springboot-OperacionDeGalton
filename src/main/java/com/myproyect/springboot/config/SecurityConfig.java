@@ -20,12 +20,9 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/").permitAll()
-                        .requestMatchers("/api/fabrica-gaus/").permitAll()
-                        .requestMatchers("/api/galton-board/").permitAll()
-                        .requestMatchers("/api/distribucion/").permitAll()
-                        .requestMatchers("/api/fabrica-gaus").permitAll()
-                        .requestMatchers("/api/galton-board").permitAll()
-                        .requestMatchers("/api/distribucion").permitAll()
+                        .requestMatchers("/api/fabrica-gaus/**").permitAll()
+                        .requestMatchers("/api/galton-board/**").permitAll()
+                        .requestMatchers("/api/distribucion/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .cors(withDefaults()) // CORS
@@ -38,12 +35,12 @@ public class SecurityConfig {
         configuration.addAllowedOrigin("http://localhost:3000");
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
-        configuration.addAllowedOriginPattern("*");
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
 }
 

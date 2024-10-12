@@ -304,6 +304,31 @@ public class GaltonBoardService {
         return galtonBoardRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("GaltonBoard no encontrado con ID: " + id));
     }
+
+    public List<GaltonBoardDTO> findAllgb() {
+        return galtonBoardRepository.findAll().stream()
+                .map(board -> mapToDTO(board, new GaltonBoardDTO()))
+                .collect(Collectors.toList());
+    }
+
+    public GaltonBoardDTO getGaltonBoardDTO(Integer id) {
+        GaltonBoard galtonBoard = galtonBoardRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("GaltonBoard no encontrado"));
+        return mapToDTO(galtonBoard, new GaltonBoardDTO());
+    }
+
+    public GaltonBoardDTO createGaltonBoard(GaltonBoardDTO galtonBoardDTO) {
+        GaltonBoard galtonBoard = new GaltonBoard();
+        galtonBoard.setNumBolas(galtonBoardDTO.getNumBolas());
+        galtonBoard.setNumContenedores(galtonBoardDTO.getNumContenedores());
+        galtonBoard.setEstado("INICIALIZADO");
+        galtonBoard = galtonBoardRepository.save(galtonBoard);
+        return mapToDTO(galtonBoard, new GaltonBoardDTO());
+    }
+
+    public void deleteGaltonBoard(Integer id) {
+        galtonBoardRepository.deleteById(id);
+    }
 }
 
 
