@@ -10,7 +10,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 import static org.springframework.security.config.Customizer.withDefaults;
-
 @Configuration
 public class SecurityConfig {
 
@@ -19,16 +18,9 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/").permitAll()
-                        .requestMatchers("/api/fabrica-gaus/").permitAll()
-                        .requestMatchers("/api/galton-board/").permitAll()
-                        .requestMatchers("/api/distribucion/").permitAll()
-                        .requestMatchers("/api/fabrica-gaus").permitAll()
-                        .requestMatchers("/api/galton-board").permitAll()
-                        .requestMatchers("/api/distribucion").permitAll()
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll() // Permite todas las solicitudes
                 )
-                .cors(withDefaults()) // CORS
+                .cors(withDefaults())
                 .build();
     }
 
@@ -38,12 +30,11 @@ public class SecurityConfig {
         configuration.addAllowedOrigin("http://localhost:3000");
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
-        configuration.addAllowedOriginPattern("*");
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-}
 
+}

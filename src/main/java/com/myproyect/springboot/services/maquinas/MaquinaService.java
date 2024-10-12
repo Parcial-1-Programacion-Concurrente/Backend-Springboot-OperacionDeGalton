@@ -467,7 +467,13 @@ public abstract class MaquinaService {
 
         return maquina;
     }
-    
+
+    public Maquina getByGaltonBoardId(Integer galtonBoardId) {
+        // Implementación para buscar la `Maquina` en función del `GaltonBoard` asociado.
+        return maquinaRepository.findByGaltonBoardId(galtonBoardId)
+                .orElseThrow(() -> new NotFoundException("Maquina no encontrada para GaltonBoard ID: " + galtonBoardId));
+    }
+
     public abstract Map<String, Integer> calcularDistribucion(Integer id);
 
     public String obtenerEstadoMaquina(Integer maquinaId) {

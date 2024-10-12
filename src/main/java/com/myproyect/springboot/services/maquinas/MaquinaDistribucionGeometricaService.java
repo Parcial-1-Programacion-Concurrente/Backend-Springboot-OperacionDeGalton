@@ -17,24 +17,23 @@ public class MaquinaDistribucionGeometricaService extends MaquinaService {
 
     public MaquinaDistribucionGeometricaService(final MaquinaRepository maquinaRepository,
                                                 final ComponenteRepository componenteRepository,
-                                                final MaquinaDistribucionGeometricaRepository maquinaDistribucionGeometricaRepository
-                                                ) {
+                                                final MaquinaDistribucionGeometricaRepository maquinaDistribucionGeometricaRepository) {
         super(maquinaRepository, componenteRepository);
         this.maquinaDistribucionGeometricaRepository = maquinaDistribucionGeometricaRepository;
     }
 
     @Override
     public Map<String, Integer> calcularDistribucion(Integer id) {
-        MaquinaDistribucionGeometrica maquina = (MaquinaDistribucionGeometrica) maquinaDistribucionGeometricaRepository.findById(id)
+        MaquinaDistribucionGeometrica maquina = maquinaDistribucionGeometricaRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
 
-        double p = maquina.getProbabilidadExito(); // Probabilidad de éxito
-        int maxIntentos = maquina.getMaximoEnsayos(); // Número máximo de intentos a considerar
+        double p = maquina.getProbabilidadExito();
+        int maxIntentos = maquina.getMaximoEnsayos();
         Map<String, Integer> distribucion = new HashMap<>();
 
         for (int k = 1; k <= maxIntentos; k++) {
             double probabilidad = Math.pow(1 - p, k - 1) * p;
-            distribucion.put("Ensayo_" + k, (int) (probabilidad * 100)); // Convertir a porcentaje
+            distribucion.put("Ensayo_" + k, (int) (probabilidad * 100));
         }
 
         return distribucion;

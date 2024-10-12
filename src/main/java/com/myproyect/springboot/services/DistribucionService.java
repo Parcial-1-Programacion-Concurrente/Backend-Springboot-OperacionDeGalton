@@ -61,4 +61,11 @@ public class DistribucionService {
         distribucion.setNumContenedores(distribucionDTO.getNumContenedores());
         return distribucion;
     }
+
+    public DistribucionDTO getDistribucionDTO(Integer id) {
+        Distribucion distribucion = distribucionRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Distribución no encontrada"));
+        return mapToDTO(distribucion, new DistribucionDTO());
+    }
+
 }
