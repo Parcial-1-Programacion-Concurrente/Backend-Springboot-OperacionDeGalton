@@ -1,15 +1,16 @@
 package com.myproyect.springboot.controller;
 
-import com.myproyect.springboot.model.DistribucionDTO;
+import com.myproyect.springboot.domain.synchronization.GaltonBoardStatus;
 import com.myproyect.springboot.model.GaltonBoardDTO;
+import com.myproyect.springboot.model.GaltonBoardStatusDTO;
 import com.myproyect.springboot.services.GaltonBoardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/galton-board")
@@ -18,10 +19,21 @@ public class GaltonBoardController {
     @Autowired
     private GaltonBoardService galtonBoardService;
 
-    @GetMapping("/list")
-    public ResponseEntity<List<GaltonBoardDTO>> getAllGaltonBoards() {
-        List<GaltonBoardDTO> galtonBoards = galtonBoardService.findAll();
-        return ResponseEntity.ok(galtonBoards);
+    @GetMapping
+    public ResponseEntity<List<GaltonBoardStatusDTO>> getAllGaltonBoards() {
+        List<GaltonBoardStatus> galtonBoardStatuses = galtonBoardService.getAllGaltonBoards();
+        List<GaltonBoardStatusDTO> statusDTOs = galtonBoardStatuses.stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(statusDTOs);
+    }
+
+    private GaltonBoardStatusDTO mapToDTO(GaltonBoardStatus status) {
+        GaltonBoardStatusDTO dto = new GaltonBoardStatusDTO();
+        dto.setId(status.getId());
+        dto.setEstado(status.getEstado());
+        dto.setDistribucionActual(status.getDistribucionActual());
+        return dto;
     }
 
     @GetMapping("/{id}")
@@ -41,4 +53,12 @@ public class GaltonBoardController {
         galtonBoardService.deleteGaltonBoard(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/{id}/status")
+    public ResponseEntity<GaltonBoardStatusDTO> getGaltonBoardStatus(@PathVariable Integer id) {
+        GaltonBoardStatus galtonBoardStatus = galtonBoardService.getGaltonBoardStatus(id);
+        GaltonBoardStatusDTO statusDTO = mapToDTO(galtonBoardStatus);
+        return ResponseEntity.ok(statusDTO);
+    }
+
 }
