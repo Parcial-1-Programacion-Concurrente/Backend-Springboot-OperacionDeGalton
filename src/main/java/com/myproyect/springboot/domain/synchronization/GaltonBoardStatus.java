@@ -23,12 +23,6 @@ public class GaltonBoardStatus {
     @Column(nullable = false)
     private String estado;
 
-    @Column(nullable = false)
-    private int numBolas;
-
-    @Column(nullable = false)
-    private int numContenedores;
-
     @ElementCollection
     @CollectionTable(name = "distribucion_actual", joinColumns = @JoinColumn(name = "status_id"))
     @MapKeyColumn(name = "contenedor")
@@ -36,11 +30,9 @@ public class GaltonBoardStatus {
     private Map<String, Integer> distribucionActual = new HashMap<>();
 
 
-    public GaltonBoardStatus(Integer id, String estado, int numBolas, int numContenedores, Map<String, Integer> distribucionActual) {
+    public GaltonBoardStatus(Integer id, String estado, Map<String, Integer> distribucionActual) {
         this.id = id;
         this.estado = estado;
-        this.numBolas = numBolas;
-        this.numContenedores = numContenedores;
         this.distribucionActual = distribucionActual;
     }
 

@@ -343,8 +343,6 @@ public class GaltonBoardService {
         return new GaltonBoardStatus(
                 galtonBoard.getId(),
                 galtonBoard.getEstado(),
-                galtonBoard.getNumBolas(),
-                galtonBoard.getNumContenedores(),
                 distribucionActual
         );
     }
@@ -358,8 +356,6 @@ public class GaltonBoardService {
                     return new GaltonBoardStatus(
                             galtonBoard.getId(),
                             galtonBoard.getEstado(),
-                            galtonBoard.getNumBolas(),
-                            galtonBoard.getNumContenedores(),
                             distribucionActual
                     );
                 })

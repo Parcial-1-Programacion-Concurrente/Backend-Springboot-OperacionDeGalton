@@ -18,10 +18,4 @@ public class GaltonBoardStatusDTO {
     @NotNull
     private Map<String, Integer> distribucionActual;
 
-    @NotNull
-    private Integer numBolas;
-
-    @NotNull
-    private Integer numContenedores;
-
 }
