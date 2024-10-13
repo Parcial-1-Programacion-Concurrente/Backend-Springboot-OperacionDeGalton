@@ -277,7 +277,7 @@ public class GaltonBoardService {
     public GaltonBoard crearYGuardarGaltonBoard(int index) {
         GaltonBoard galtonBoard = new GaltonBoard();
         galtonBoard.setNumBolas(500);
-        galtonBoard.setNumContenedores(12);
+        galtonBoard.setNumContenedores(6 + index);
         galtonBoard.setEstado("INICIALIZADO");
 
         Distribucion distribucion = new Distribucion();
